@@ -6,6 +6,7 @@ import {
   ClipboardCheck,
   FileText,
   Globe,
+  HelpCircle,
   LayoutDashboard,
   Link2,
   MapPin,
@@ -29,6 +30,11 @@ const projectNavItems = [
     to: "/p/$projectId/keywords" as const,
     label: "Keyword Research",
     icon: Search,
+  },
+  {
+    to: "/p/$projectId/questions" as const,
+    label: "Question Explorer",
+    icon: HelpCircle,
   },
   {
     to: "/p/$projectId/saved" as const,
@@ -134,6 +140,7 @@ export function getProjectNavGroups(projectId: string) {
       label: "Research",
       items: [
         byPath("/p/$projectId/keywords"),
+        byPath("/p/$projectId/questions"),
         byPath("/p/$projectId/domain"),
         byPath("/p/$projectId/backlinks"),
       ],

@@ -29,6 +29,7 @@ import {
 } from "@/server/lib/dataforseo/google-ads";
 import {
   clampSerpDepth,
+  fetchLiveAutocomplete,
   fetchLocalSerp,
   postLocalSerpTasks,
   postRankCheckTasks,
@@ -55,6 +56,7 @@ import {
   AI_LIVE_RECORD_COST_USD,
   AI_RECORD_COST_USD,
 } from "@/shared/ai-visibility";
+import { QUESTION_EXPLORER_REQUEST_USD } from "@/shared/question-explorer";
 import {
   costPerSerpAtDepth,
   serpKeywordCostMultiplier,
@@ -152,6 +154,8 @@ const LOCAL_SERP_PAGE_USD = 0.002;
 // SERP Google Maps, queued at high priority. measured: task_post bills $0.0012
 // per task at depth 20.
 const LOCAL_SERP_TASK_USD = 0.0012;
+// SERP Google Autocomplete, live: QUESTION_EXPLORER_REQUEST_USD.
+// uncalibrated: list price, one task per request.
 
 type ProviderUsdEstimator<I> = (input: I) => number;
 
@@ -273,6 +277,10 @@ export const dataforseoPricing = {
       input.searchType === "maps"
         ? LOCAL_SERP_PAGE_USD
         : Math.ceil(input.depth / 10) * LOCAL_SERP_PAGE_USD,
+    ),
+    autocomplete: priced(
+      fetchLiveAutocomplete,
+      () => QUESTION_EXPLORER_REQUEST_USD,
     ),
     localTaskPost: priced(
       postLocalSerpTasks,
