@@ -45,6 +45,25 @@ export const researchKeywordsSchema = z.object({
   groupKeywords: z.boolean().optional().default(false),
 });
 
+export const exploreQuestionsSchema = z.object({
+  projectId: z.string().min(1),
+  keyword: z.string().trim().min(1).max(80),
+  locationCode: z.number().int().positive().optional(),
+  languageCode: z.string().min(2).max(8).optional(),
+  // 26 extra Google requests ("keyword a" .. "keyword z"); opt-in.
+  includeAlphabetical: z.boolean().optional().default(false),
+  includeVolumes: z.boolean().optional().default(false),
+});
+
+// URL state of the Question Explorer page: the active search.
+export const questionExplorerSearchSchema = z.object({
+  q: z.string().trim().min(1).max(80).optional().catch(undefined),
+  loc: z.coerce.number().int().positive().optional().catch(undefined),
+  lang: z.string().min(2).max(8).optional().catch(undefined),
+  az: z.boolean().optional().catch(undefined),
+  vol: z.boolean().optional().catch(undefined),
+});
+
 export const savedKeywordMetricSchema = z.object({
   keyword: z.string().min(1),
   searchVolume: z.number().int().nonnegative().nullable().optional(),

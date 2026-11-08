@@ -144,6 +144,47 @@ export async function fetchLiveSerp(
   };
 }
 
+const autocompleteItemSchema = z
+  .object({
+    type: z.string(),
+    suggestion: z.string().nullable().optional(),
+  })
+  .passthrough();
+
+/**
+ * Google's search-box suggestions for one query, the data AnswerThePublic is
+ * built on. Live endpoints take one task per POST.
+ */
+export async function fetchLiveAutocomplete(input: {
+  keyword: string;
+  locationCode: number;
+  languageCode: string;
+}): Promise<DataforseoApiResponse<string[]>> {
+  const response = await dataforseoPost(
+    "/v3/serp/google/autocomplete/live/advanced",
+    [
+      {
+        keyword: input.keyword,
+        location_code: input.locationCode,
+        language_code: input.languageCode,
+      },
+    ],
+  );
+  // A query with no suggestions is a billed empty result, not a failure.
+  const task = assertOk(response, { treatNoResultsAsEmpty: true });
+  const items = parseTaskItems(
+    "google-autocomplete-live-advanced",
+    task,
+    autocompleteItemSchema,
+  );
+  return {
+    data: items.flatMap((item) =>
+      item.type === "autocomplete" && item.suggestion ? [item.suggestion] : [],
+    ),
+    billing: buildTaskBilling(task),
+  };
+}
+
 export interface RankCheckResult {
   keywordId: string;
   keyword: string;

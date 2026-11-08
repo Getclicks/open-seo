@@ -43,10 +43,10 @@ import {
   fetchAdsSearchVolume,
 } from "@/server/lib/dataforseo/google-ads";
 import {
+  fetchLiveAutocomplete,
   fetchLocalSerp,
   postLocalSerpTasks,
   postSerpReadTasks,
-  type SerpQuery,
   postRankCheckTasks,
 } from "@/server/lib/dataforseo/serp";
 import { fetchLighthouseResult } from "@/server/lib/dataforseo/lighthouse";
@@ -92,6 +92,23 @@ function meter<I, T>(
       () => fetcher(input),
       creditsForProviderUsd(estimateRawUsd(input)),
       input.creditFeature ?? defaultFeature,
+    );
+}
+
+/** `meter` for a batch: one credit hold covers every call (see
+ *  meterDataforseoCalls). Resolves per call, in order. */
+function meterBatch<I, T>(
+  customer: BillingCustomerContext,
+  fetcher: (input: I) => Promise<DataforseoApiResponse<T>>,
+  estimateRawUsd: (input: I) => number,
+  creditFeature: CreditFeature,
+): (inputs: I[]) => Promise<PromiseSettledResult<T>[]> {
+  return (inputs) =>
+    meterDataforseoCalls(
+      customer,
+      inputs.map((input) => () => fetcher(input)),
+      inputs.map((input) => creditsForProviderUsd(estimateRawUsd(input))),
+      creditFeature,
     );
 }
 
@@ -221,15 +238,12 @@ export function createDataforseoClient(customer: BillingCustomerContext) {
       // query is placed and refused as its own hold would be (see
       // meterDataforseoCalls). DataForSEO bills task_post, collection is free.
       // Resolves per query, in order.
-      readsTaskPostBatch: (inputs: SerpQuery[]) =>
-        meterDataforseoCalls(
-          customer,
-          inputs.map((input) => () => postSerpReadTasks(input)),
-          inputs.map((input) =>
-            creditsForProviderUsd(dataforseoPricing.serp.readsTaskPost(input)),
-          ),
-          "keyword_research",
-        ),
+      readsTaskPostBatch: meterBatch(
+        customer,
+        postSerpReadTasks,
+        dataforseoPricing.serp.readsTaskPost,
+        "keyword_research",
+      ),
       // Posts up to 100 queued rank check tasks; one metered charge covers the
       // whole batch (DataForSEO bills task_post at post time, collection is
       // free).
@@ -247,15 +261,20 @@ export function createDataforseoClient(customer: BillingCustomerContext) {
       ),
       // Live Maps searches for a Local SEO check, one per grid point; one
       // credit hold covers the batch.
-      localBatch: (inputs: Parameters<typeof fetchLocalSerp>[0][]) =>
-        meterDataforseoCalls(
-          customer,
-          inputs.map((input) => () => fetchLocalSerp(input)),
-          inputs.map((input) =>
-            creditsForProviderUsd(dataforseoPricing.serp.local(input)),
-          ),
-          "local_seo",
-        ),
+      localBatch: meterBatch(
+        customer,
+        fetchLocalSerp,
+        dataforseoPricing.serp.local,
+        "local_seo",
+      ),
+      // Live Google suggestions for a Question Explorer search, one per
+      // modifier; one credit hold covers the batch.
+      autocompleteBatch: meterBatch(
+        customer,
+        fetchLiveAutocomplete,
+        dataforseoPricing.serp.autocomplete,
+        "keyword_research",
+      ),
       // One queued Maps task per rank grid point; one metered charge covers
       // them all (DataForSEO bills task_post, collection is free).
       localTaskPost: meter(
@@ -335,19 +354,12 @@ export function createDataforseoClient(customer: BillingCustomerContext) {
       }) => settleAiTrackingHold(customer, input),
       // A manual run's live answers share one credit hold and one settle (see
       // meterDataforseoCalls). Resolves per call, in order.
-      trackingLiveBatch: (
-        inputs: Parameters<typeof fetchAiTrackingLiveAnswer>[0][],
-      ) =>
-        meterDataforseoCalls(
-          customer,
-          inputs.map((input) => () => fetchAiTrackingLiveAnswer(input)),
-          inputs.map((input) =>
-            creditsForProviderUsd(
-              dataforseoPricing.aiSearch.trackingLive(input),
-            ),
-          ),
-          "ai_prompt_responses",
-        ),
+      trackingLiveBatch: meterBatch(
+        customer,
+        fetchAiTrackingLiveAnswer,
+        dataforseoPricing.aiSearch.trackingLive,
+        "ai_prompt_responses",
+      ),
     },
   } as const;
 }
