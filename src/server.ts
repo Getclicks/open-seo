@@ -332,6 +332,11 @@ export default {
         await runScheduledAiVisibility();
       }),
       withPgClient(() => sendFirstAuditEmails()),
+      withPgClient(async () => {
+        const { runScheduledWeeklyReports } =
+          await import("@/server/features/weekly-reports/WeeklyReportService");
+        await runScheduledWeeklyReports();
+      }),
     ]);
     for (const result of checks)
       if (result.status === "rejected") throw result.reason;

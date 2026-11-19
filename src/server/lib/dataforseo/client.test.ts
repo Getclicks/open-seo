@@ -91,6 +91,7 @@ vi.mock("@/server/lib/dataforseo/serp", () => ({
   postSerpReadTasks: vi.fn(),
   SERP_READS_PER_QUERY: 3,
   postRankCheckTasks: vi.fn(),
+  fetchLiveAutocomplete: vi.fn(),
   fetchLocalSerp: vi.fn(),
   postLocalSerpTasks: vi.fn(),
   clampSerpDepth: (depth: number) => depth,

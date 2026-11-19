@@ -9,6 +9,10 @@ import {
   getGatewayGoogleStatus,
 } from "@/server/features/google/gatewayGoogle";
 import {
+  getServiceAccountKey,
+  SERVICE_ACCOUNT_ID,
+} from "@/server/features/google/serviceAccount";
+import {
   createGscClient,
   type GscSite,
   type UrlInspectionResult,
@@ -61,6 +65,7 @@ async function getConnection(projectId: string): Promise<GscConnection | null> {
 /** Whether this user has linked a google-search-console grant (regardless of
  *  whether they've picked a property yet). Drives the connect-vs-pick UI. */
 async function userHasGrant(userId: string): Promise<boolean> {
+  if (await getServiceAccountKey()) return true;
   if ((await getGoogleAccessMode()) === "gateway") {
     return (await getGatewayGoogleStatus()).connected;
   }
@@ -83,6 +88,15 @@ async function userHasGrant(userId: string): Promise<boolean> {
  * it is connected.
  */
 async function listGrantsForUser(userId: string) {
+  // The installation's service account, when one is configured, is offered
+  // to every member beside their own Google accounts.
+  const serviceAccount = (await getServiceAccountKey())
+    ? [{ id: SERVICE_ACCOUNT_ID, accountId: SERVICE_ACCOUNT_ID }]
+    : [];
+  return [...serviceAccount, ...(await listOwnGrants(userId))];
+}
+
+async function listOwnGrants(userId: string) {
   if ((await getGoogleAccessMode()) === "gateway") {
     return (await getGatewayGoogleStatus()).connected
       ? [

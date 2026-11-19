@@ -122,55 +122,41 @@ export function ProjectSwitcher({
           if (project) handleSelect(project);
         }}
       >
-        <div className="flex items-stretch rounded-lg border border-sidebar-border bg-card">
-          <ComboboxTrigger
-            aria-label="Switch project"
-            className="flex min-w-0 flex-1 items-center justify-between gap-2 rounded-l-lg px-3 py-1.5 text-left hover:bg-accent"
+        <ComboboxTrigger
+          aria-label="Switch store"
+          className="flex min-h-12 w-full min-w-0 items-center gap-2.5 rounded-lg px-2 py-1.5 text-left hover:bg-sidebar-accent"
+        >
+          <span
+            aria-hidden
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground"
           >
-            <span className="flex min-w-0 flex-col">
-              <span className="truncate text-sm font-medium">
-                {activeProject?.name ?? "Select project"}
-              </span>
-              {activeProject?.domain ? (
-                <span className="truncate text-xs text-muted-foreground">
-                  {activeProject.domain}
-                </span>
-              ) : null}
+            {(activeProject?.name ?? "?").trim().charAt(0).toUpperCase()}
+          </span>
+          <span className="flex min-w-0 flex-1 flex-col">
+            <span className="truncate text-sm font-semibold">
+              {activeProject?.name ?? "Select store"}
             </span>
-          </ComboboxTrigger>
-          {activeProject ? (
-            <Button
-              nativeButton={false}
-              render={
-                <Link
-                  to="/p/$projectId/settings"
-                  params={{ projectId: activeProject.id }}
-                  aria-label="Project settings"
-                  title="Project settings"
-                  onClick={() => {
-                    setOpen(false);
-                    onCloseDrawer?.();
-                  }}
-                />
-              }
-              variant="ghost"
-              className="h-auto self-stretch rounded-l-none border-0 border-l border-sidebar-border"
-            >
-              <Settings className="size-4" />
-            </Button>
-          ) : null}
-        </div>
+            {activeProject?.domain ? (
+              <span className="truncate text-xs text-muted-foreground">
+                {activeProject.domain}
+                {LOCATIONS[activeProject.locationCode]
+                  ? ` · ${LOCATIONS[activeProject.locationCode]}`
+                  : ""}
+              </span>
+            ) : null}
+          </span>
+        </ComboboxTrigger>
         <ComboboxContent className="w-(--anchor-width)">
           {projects.length >= SEARCH_THRESHOLD ? (
             <ComboboxInput
               className="w-auto"
-              placeholder="Find project…"
-              aria-label="Filter projects"
+              placeholder="Find store…"
+              aria-label="Filter stores"
               showTrigger={false}
             />
           ) : null}
           {projects.length > 0 ? (
-            <ComboboxEmpty>No projects match.</ComboboxEmpty>
+            <ComboboxEmpty>No stores match.</ComboboxEmpty>
           ) : null}
           <ComboboxList className="max-h-[min(60vh,21rem)]">
             {(project: ProjectSummary) => (
@@ -203,8 +189,28 @@ export function ProjectSwitcher({
               }}
             >
               <Plus className="size-4" />
-              New project
+              Add store
             </Button>
+            {activeProject ? (
+              <Button
+                nativeButton={false}
+                render={
+                  <Link
+                    to="/p/$projectId/settings"
+                    params={{ projectId: activeProject.id }}
+                    onClick={() => {
+                      setOpen(false);
+                      onCloseDrawer?.();
+                    }}
+                  />
+                }
+                variant="ghost"
+                className="justify-start"
+              >
+                <Settings className="size-4" />
+                Store settings
+              </Button>
+            ) : null}
             <Button
               nativeButton={false}
               render={
@@ -220,7 +226,7 @@ export function ProjectSwitcher({
               className="justify-start"
             >
               <FolderCog className="size-4" />
-              Manage projects
+              Manage stores
             </Button>
           </div>
         </ComboboxContent>

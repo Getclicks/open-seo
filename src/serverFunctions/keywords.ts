@@ -11,8 +11,10 @@ import {
   updateSavedKeywordTagSchema,
   updateSavedKeywordTagsSchema,
   keywordSuggestionsSchema,
+  exploreQuestionsSchema,
 } from "@/types/schemas/keywords";
 import { KeywordResearchService } from "@/server/features/keywords/services/KeywordResearchService";
+import { QuestionExplorerService } from "@/server/features/keywords/services/QuestionExplorerService";
 import { KeywordSuggestionService } from "@/server/features/keywords/services/KeywordSuggestionService";
 import { recordResearchStep } from "@/server/features/activation/researchActivation";
 import { requireProjectContext } from "@/serverFunctions/middleware";
@@ -43,6 +45,16 @@ export const researchKeywords = createServerFn({ method: "POST" })
     const result = await KeywordResearchService.research(input, context);
     await recordResearchStep(context.projectId, "keywords");
     return result;
+  });
+
+export const exploreQuestions = createServerFn({ method: "POST" })
+  .middleware(requireProjectContext)
+  .validator(exploreQuestionsSchema)
+  .handler(async ({ data, context }) => {
+    return QuestionExplorerService.explore(
+      { ...data, ...resolveMarket(data, context.project) },
+      context,
+    );
   });
 
 export const saveKeywords = createServerFn({ method: "POST" })
