@@ -1,7 +1,8 @@
 import { useCallback, useMemo } from "react";
 import { ErrorState } from "@/client/components/ErrorState";
 import { FormDialog } from "@/client/components/FormDialog";
-import { BackButton, PageHeader } from "@/client/components/PageHeader";
+import { KeywordsHeader } from "@/client/features/seo-app/KeywordsHeader";
+import { BackButton } from "@/client/components/PageHeader";
 import { Button } from "@/client/components/ui/button";
 import { InsufficientCreditsError } from "@/client/features/billing/InsufficientCreditsError";
 import { getErrorCode } from "@/client/lib/error-messages";
@@ -199,15 +200,12 @@ export function KeywordResearchPage(input: Props) {
   });
 
   return (
-    <div className="px-4 py-4 md:px-6 md:py-6 pb-24 md:pb-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <PageHeader
-          title="Keyword Research"
-          description={
-            controller.hasSearched
-              ? undefined
-              : "Discover keyword ideas, search demand, and ranking opportunities."
-          }
+    <div className="px-4 pt-6 pb-24 md:px-8 md:pt-7 md:pb-12">
+      <div className="flex max-w-[1280px] flex-col gap-5">
+        <KeywordsHeader
+          projectId={projectId}
+          active="ideas"
+          keyword={activeTab?.input.keyword}
           backLink={
             controller.hasSearched ? (
               <BackButton

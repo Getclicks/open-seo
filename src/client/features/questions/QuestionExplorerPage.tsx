@@ -4,15 +4,11 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Download, Search } from "lucide-react";
 import { CopyButton } from "@/client/components/CopyButton";
 import { ErrorState } from "@/client/components/ErrorState";
-import { PageHeader } from "@/client/components/PageHeader";
+import { KeywordsHeader } from "@/client/features/seo-app/KeywordsHeader";
+import { PageFrame } from "@/client/features/seo-app/ui";
 import { Badge } from "@/client/components/ui/badge";
 import { Button } from "@/client/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/client/components/ui/card";
+import { Card, CardContent } from "@/client/components/ui/card";
 import { Checkbox } from "@/client/components/ui/checkbox";
 import { Field, FieldLabel } from "@/client/components/ui/field";
 import { Input } from "@/client/components/ui/input";
@@ -122,106 +118,103 @@ export function QuestionExplorerPage({
   };
 
   return (
-    <div className="overflow-auto px-4 py-4 pb-24 md:px-6 md:py-6 md:pb-8">
-      <div className="mx-auto max-w-7xl space-y-4">
-        <PageHeader
-          title="Question Explorer"
-          description="The questions, prepositions and comparisons people type into Google around a topic, straight from Google's search suggestions."
-        />
+    <PageFrame wide>
+      <KeywordsHeader
+        projectId={projectId}
+        active="questions"
+        keyword={search.q}
+      />
 
-        <Card>
-          <CardContent>
-            <form onSubmit={onSubmit} noValidate className="space-y-5">
-              <Field>
-                <FieldLabel htmlFor="question-explorer-keyword">
-                  Keyword
-                </FieldLabel>
-                <Input
-                  id="question-explorer-keyword"
-                  value={keyword}
-                  maxLength={80}
-                  onChange={(event) => setKeyword(event.target.value)}
-                  placeholder="e.g. rugpijn"
-                  autoComplete="off"
-                  autoFocus
+      <Card>
+        <CardContent>
+          <form onSubmit={onSubmit} noValidate className="space-y-5">
+            <Field>
+              <FieldLabel htmlFor="question-explorer-keyword">
+                Seed keyword
+              </FieldLabel>
+              <Input
+                id="question-explorer-keyword"
+                value={keyword}
+                maxLength={80}
+                onChange={(event) => setKeyword(event.target.value)}
+                placeholder="e.g. posture corrector"
+                autoComplete="off"
+                autoFocus
+              />
+            </Field>
+
+            {market ? (
+              <ProjectMarketFields value={market} onChange={setMarketDraft} />
+            ) : (
+              <Skeleton className="h-16 w-full" />
+            )}
+            {!languageSupported ? (
+              <p className="text-sm text-destructive">
+                Question Explorer supports {SUPPORTED_LANGUAGES}. Pick one of
+                those languages.
+              </p>
+            ) : null}
+
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+              <Label className="font-normal">
+                <Checkbox
+                  checked={includeAlphabetical}
+                  onCheckedChange={(checked) => setIncludeAlphabetical(checked)}
                 />
-              </Field>
+                Include A–Z suggestions (26 extra requests)
+              </Label>
+              <Label className="font-normal">
+                <Checkbox
+                  checked={includeVolumes}
+                  onCheckedChange={(checked) => setIncludeVolumes(checked)}
+                />
+                Add search volume and CPC
+              </Label>
+            </div>
 
-              {market ? (
-                <ProjectMarketFields value={market} onChange={setMarketDraft} />
-              ) : (
-                <Skeleton className="h-16 w-full" />
-              )}
-              {!languageSupported ? (
-                <p className="text-sm text-destructive">
-                  Question Explorer supports {SUPPORTED_LANGUAGES}. Pick one of
-                  those languages.
-                </p>
-              ) : null}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
+                {requestCount} Google requests, about $
+                {(requestCount * QUESTION_EXPLORER_REQUEST_USD).toFixed(2)} at
+                DataForSEO
+                {includeVolumes ? ", plus one search volume lookup" : ""}.
+              </p>
+              <Button
+                type="submit"
+                disabled={
+                  !keyword.trim() ||
+                  !market ||
+                  !languageSupported ||
+                  query.isFetching
+                }
+              >
+                <Search />
+                {query.isFetching ? "Exploring…" : "Explore"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
 
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                <Label className="font-normal">
-                  <Checkbox
-                    checked={includeAlphabetical}
-                    onCheckedChange={(checked) =>
-                      setIncludeAlphabetical(checked)
-                    }
-                  />
-                  Include A–Z suggestions (26 extra requests)
-                </Label>
-                <Label className="font-normal">
-                  <Checkbox
-                    checked={includeVolumes}
-                    onCheckedChange={(checked) => setIncludeVolumes(checked)}
-                  />
-                  Add search volume and CPC
-                </Label>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-muted-foreground">
-                  {requestCount} Google requests, about $
-                  {(requestCount * QUESTION_EXPLORER_REQUEST_USD).toFixed(2)} at
-                  DataForSEO
-                  {includeVolumes ? ", plus one search volume lookup" : ""}.
-                </p>
-                <Button
-                  type="submit"
-                  disabled={
-                    !keyword.trim() ||
-                    !market ||
-                    !languageSupported ||
-                    query.isFetching
-                  }
-                >
-                  <Search />
-                  {query.isFetching ? "Exploring…" : "Explore"}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-
-        {query.isFetching ? <ResultsSkeleton /> : null}
-        {query.isError ? (
-          getErrorCode(query.error) === "INSUFFICIENT_CREDITS" ? (
-            <InsufficientCreditsError />
-          ) : (
-            <ErrorState
-              message={getStandardErrorMessage(
-                query.error,
-                "Couldn't load Google suggestions. Try again.",
-              )}
-              onRetry={() => void query.refetch()}
-              isRetrying={query.isFetching}
-            />
-          )
-        ) : null}
-        {query.data && !query.isFetching ? (
-          <QuestionExplorerResults projectId={projectId} result={query.data} />
-        ) : null}
-      </div>
-    </div>
+      {query.isFetching ? <ResultsSkeleton /> : null}
+      {query.isError ? (
+        getErrorCode(query.error) === "INSUFFICIENT_CREDITS" ? (
+          <InsufficientCreditsError />
+        ) : (
+          <ErrorState
+            message={getStandardErrorMessage(
+              query.error,
+              "Couldn't load Google suggestions. Try again.",
+            )}
+            onRetry={() => void query.refetch()}
+            isRetrying={query.isFetching}
+          />
+        )
+      ) : null}
+      {query.data && !query.isFetching ? (
+        <QuestionExplorerResults projectId={projectId} result={query.data} />
+      ) : null}
+    </PageFrame>
   );
 }
 
@@ -319,63 +312,73 @@ function QuestionExplorerResults({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {result.groups.map((group) => (
-          <Card key={group.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                {QUESTION_GROUP_LABELS[group.id]}
-                <Badge variant="secondary">
-                  {group.modifiers.reduce(
-                    (sum, modifier) => sum + modifier.suggestions.length,
-                    0,
-                  )}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {group.modifiers.map((modifier) => (
-                <section key={modifier.modifier} className="space-y-1">
-                  <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+      {result.groups.map((group) => (
+        <section key={group.id} className="flex flex-col gap-3">
+          <h2 className="m-0 flex items-center gap-2 text-base font-semibold">
+            {QUESTION_GROUP_LABELS[group.id]}
+            <Badge variant="secondary">
+              {group.modifiers.reduce(
+                (sum, modifier) => sum + modifier.suggestions.length,
+                0,
+              )}
+            </Badge>
+          </h2>
+          <div className="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(260px,1fr))]">
+            {group.modifiers.map((modifier) => (
+              <section
+                key={modifier.modifier}
+                className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-5 py-4"
+              >
+                <div className="flex items-baseline gap-2 pb-1">
+                  <h3 className="m-0 flex-1 text-[17px] font-semibold capitalize">
                     {modifier.modifier}
                   </h3>
-                  <ul className="divide-y divide-border">
-                    {modifier.suggestions.map((suggestion) => (
-                      <li
-                        key={suggestion.keyword}
-                        className="flex items-center justify-between gap-3 py-1.5 text-sm"
+                  <span className="text-xs text-muted-foreground">
+                    {modifier.suggestions.length}{" "}
+                    {group.id === "questions" ? "questions" : "searches"}
+                  </span>
+                </div>
+                <ul className="m-0 flex list-none flex-col p-0">
+                  {modifier.suggestions.map((suggestion) => (
+                    <li
+                      key={suggestion.keyword}
+                      className="flex items-baseline gap-2.5 border-t border-background py-2 text-sm leading-snug"
+                    >
+                      <Link
+                        to="/p/$projectId/keywords"
+                        params={{ projectId }}
+                        search={{
+                          q: suggestion.keyword,
+                          loc: result.locationCode,
+                        }}
+                        className="min-w-0 flex-1 text-foreground no-underline hover:underline"
+                        title="Open in Keyword ideas"
                       >
-                        <Link
-                          to="/p/$projectId/keywords"
-                          params={{ projectId }}
-                          search={{
-                            q: suggestion.keyword,
-                            loc: result.locationCode,
-                          }}
-                          className="min-w-0 truncate hover:underline"
-                          title="Open in Keyword Research"
-                        >
-                          {suggestion.keyword}
-                        </Link>
-                        {result.includeVolumes ? (
-                          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-                            {suggestion.searchVolume != null
-                              ? suggestion.searchVolume.toLocaleString()
-                              : "–"}
-                            {suggestion.cpc != null
-                              ? ` · $${suggestion.cpc.toFixed(2)}`
-                              : ""}
-                          </span>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                        {suggestion.keyword}
+                      </Link>
+                      {result.includeVolumes ? (
+                        <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                          {suggestion.searchVolume != null
+                            ? suggestion.searchVolume.toLocaleString()
+                            : "–"}
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        </section>
+      ))}
+      <p className="m-0 text-[13px] text-muted-foreground">
+        Searches around "{result.keyword}", grouped by the word Google
+        completed.
+        {result.includeVolumes
+          ? " Volume = estimated monthly searches."
+          : ""}{" "}
+        Use them for FAQ blocks and blog headings.
+      </p>
     </div>
   );
 }

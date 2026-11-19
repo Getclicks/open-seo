@@ -1,6 +1,6 @@
 import * as React from "react";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
-import { Link, useLocation } from "@tanstack/react-router";
+import { useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   LegacyDockerBanner,
@@ -13,11 +13,8 @@ import { BILLING_ROUTE } from "@/shared/billing";
 import { getSeoApiKeyStatus } from "@/serverFunctions/config";
 import { getLastProjectId } from "@/client/lib/active-project";
 import { dataforseoHelpLinkOptions } from "@/client/navigation/items";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/client/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/client/components/ui/sidebar";
+import { AppTopbar } from "@/client/layout/AppTopbar";
 
 export function AuthenticatedAppLayout({
   children,
@@ -106,14 +103,14 @@ export function AuthenticatedAppLayout({
     !showMissingSeoApiKeyModal;
 
   return (
-    <SidebarProvider className="h-[100dvh] min-h-0 overflow-hidden">
+    <SidebarProvider className="h-[100dvh] min-h-0 overflow-hidden !bg-background md:p-3">
       <Sidebar
         projectId={sidebarProjectId}
         projectPending={sidebarProjectPending}
         ready={ready}
       />
-      <SidebarInset className="min-h-0 overflow-hidden md:!m-0 md:!mt-2 md:!rounded-none md:!rounded-tl-lg md:border-l md:border-t md:border-sidebar-border md:!shadow-none">
-        <MobileTopBar />
+      <SidebarInset className="min-h-0 overflow-hidden bg-card md:!m-0 md:!rounded-none md:!rounded-r-2xl md:border md:border-border md:!shadow-none">
+        <AppTopbar projectId={sidebarProjectId} />
         <SeoApiStatusBanners
           shouldShowSeoApiWarning={shouldShowSeoApiWarning}
           seoApiKeyStatusError={seoApiKeyStatusError}
@@ -136,16 +133,5 @@ export function AuthenticatedAppLayout({
         />
       ) : null}
     </SidebarProvider>
-  );
-}
-
-function MobileTopBar() {
-  return (
-    <div className="flex shrink-0 items-center gap-1 border-b border-border bg-card px-2 py-1.5 md:hidden">
-      <SidebarTrigger aria-label="Toggle sidebar" />
-      <Link to="/" className="ml-1 font-semibold text-foreground">
-        OpenSEO
-      </Link>
-    </div>
   );
 }

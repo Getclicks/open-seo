@@ -1,177 +1,287 @@
 import {
-  Bookmark,
   Bot,
-  Brain,
-  ChartLine,
-  ClipboardCheck,
   FileText,
-  Globe,
-  HelpCircle,
-  LayoutDashboard,
-  Link2,
-  MapPin,
-  MessageSquare,
+  LayoutGrid,
   Search,
-  TrendingUp,
+  Sparkles,
+  Tag,
+  Wrench,
 } from "lucide-react";
-import { linkOptions } from "@tanstack/react-router";
-import { GoogleGlyphMuted } from "@/client/features/gsc/GoogleGlyph";
+import { linkOptions, type LinkOptions } from "@tanstack/react-router";
+import type { ComponentType } from "react";
+import type { SearchConsoleTab } from "@/shared/search-console";
 
-const projectNavItems = [
-  {
-    to: "/p/$projectId" as const,
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    // Without exact matching, the index path is a prefix of every project
-    // route and the Dashboard item would render active everywhere.
-    activeOptions: { exact: true, includeSearch: false },
-  },
-  {
-    to: "/p/$projectId/keywords" as const,
-    label: "Keyword Research",
-    icon: Search,
-  },
-  {
-    to: "/p/$projectId/questions" as const,
-    label: "Question Explorer",
-    icon: HelpCircle,
-  },
-  {
-    to: "/p/$projectId/saved" as const,
-    label: "Saved Keywords",
-    icon: Bookmark,
-  },
-  {
-    to: "/p/$projectId/rank-tracking" as const,
-    label: "Rank Tracking",
-    icon: TrendingUp,
-  },
-  {
-    to: "/p/$projectId/local-seo" as const,
-    label: "Local SEO",
-    icon: MapPin,
-  },
-  {
-    to: "/p/$projectId/search-performance" as const,
-    label: "GSC Insights",
-    icon: GoogleGlyphMuted,
-  },
-  {
-    to: "/p/$projectId/domain" as const,
-    label: "Domain Overview",
-    icon: Globe,
-  },
-  {
-    to: "/p/$projectId/backlinks" as const,
-    label: "Backlinks",
-    icon: Link2,
-  },
-  {
-    to: "/p/$projectId/audit" as const,
-    label: "Site Audit",
-    icon: ClipboardCheck,
-  },
-  {
-    to: "/p/$projectId/ai-visibility" as const,
-    label: "Prompt Tracking",
-    icon: ChartLine,
-    activeOptions: { exact: true, includeSearch: false },
-  },
-  {
-    to: "/p/$projectId/ai-visibility/research" as const,
-    label: "Prompt Research",
-    icon: Search,
-  },
-  {
-    to: "/p/$projectId/prompt-explorer" as const,
-    label: "Prompt Explorer",
-    icon: MessageSquare,
-  },
-  {
-    to: "/p/$projectId/reports" as const,
-    label: "Reports",
-    icon: FileText,
-  },
-  {
-    to: "/p/$projectId/context" as const,
-    label: "Context",
-    icon: Brain,
-  },
-] as const;
+type NavIcon = ComponentType<{ className?: string }>;
 
-// Project-independent. Rendered inside the project "AI Tools" group when a project
-// is selected, and on its own (connectNavGroup) when none is.
-const aiNavItem = linkOptions({
-  to: "/ai" as const,
-  label: "Agent setup",
-  icon: Bot,
-});
-
-// Shown only when no project is selected; with a project, Agent setup lives in
-// the "AI Tools" group below.
-export const connectNavGroup = {
-  label: "AI Tools",
-  items: [aiNavItem],
+export type NavSubItem = {
+  label: string;
+  link: LinkOptions;
+  /** Search params that must match for this entry to be the active one. */
+  matchSearch?: Record<string, string>;
 };
 
-function getProjectNavItems(projectId: string) {
-  return linkOptions(
-    projectNavItems.map((item) => ({
-      ...item,
-      params: { projectId },
-      search: {},
-    })),
-  );
-}
+export type NavModule = {
+  key: string;
+  label: string;
+  icon: NavIcon;
+  link: LinkOptions;
+  /** Paths (route ids under /p/$projectId) that belong to this module. */
+  paths: string[];
+  subs: NavSubItem[];
+};
 
-// Grouped by scope: "My Site" is the project's own domain (tracked data),
-// "Research" is point-at-anything lookup tools.
-export function getProjectNavGroups(projectId: string) {
-  const all = getProjectNavItems(projectId);
-  const byPath = (path: (typeof projectNavItems)[number]["to"]) =>
-    all.find((i) => i.to === path)!;
+// Project-independent; shown on its own when no project is selected.
+const aiNavItem = linkOptions({ to: "/ai" as const });
 
+export const connectNavModules: NavModule[] = [
+  {
+    key: "agent",
+    label: "Agent setup",
+    icon: Bot,
+    link: aiNavItem,
+    paths: [],
+    subs: [],
+  },
+];
+
+/**
+ * The SEO App navigation: five modules, each with its own sub-pages shown
+ * while the module is active, plus the remaining OpenSEO tools.
+ */
+export function getProjectNavModules(projectId: string): NavModule[] {
+  const params = { projectId };
+  const searchConsoleTab = (
+    tab: SearchConsoleTab,
+    label: string,
+  ): NavSubItem => ({
+    label,
+    link: linkOptions({
+      to: "/p/$projectId/search-console",
+      params,
+      search: { tab },
+    }),
+    matchSearch: { tab },
+  });
   return [
     {
-      label: "Overview",
-      items: [byPath("/p/$projectId")],
+      key: "dashboard",
+      label: "Dashboard",
+      icon: LayoutGrid,
+      link: linkOptions({ to: "/p/$projectId", params, search: {} }),
+      paths: ["/p/$projectId/"],
+      subs: [],
     },
     {
-      label: "Research",
-      items: [
-        byPath("/p/$projectId/keywords"),
-        byPath("/p/$projectId/questions"),
-        byPath("/p/$projectId/domain"),
-        byPath("/p/$projectId/backlinks"),
+      key: "search-console",
+      label: "Search Console",
+      icon: Search,
+      link: linkOptions({
+        to: "/p/$projectId/search-console",
+        params,
+        search: {},
+      }),
+      paths: [
+        "/p/$projectId/search-console",
+        "/p/$projectId/search-performance",
+      ],
+      subs: [
+        searchConsoleTab("queries", "Queries"),
+        searchConsoleTab("pages", "Pages"),
+        searchConsoleTab("opportunities", "Opportunities"),
+        searchConsoleTab("decliners", "Decliners"),
+        searchConsoleTab("cannibalization", "Cannibalization"),
+        searchConsoleTab("indexing", "Indexing"),
+        {
+          label: "Explorer",
+          link: linkOptions({
+            to: "/p/$projectId/search-performance",
+            params,
+            search: {},
+          }),
+        },
       ],
     },
     {
-      label: "AI Visibility",
-      items: [
-        byPath("/p/$projectId/ai-visibility/research"),
-        byPath("/p/$projectId/prompt-explorer"),
-        byPath("/p/$projectId/ai-visibility"),
+      key: "geo",
+      label: "GEO / AI visibility",
+      icon: Sparkles,
+      link: linkOptions({ to: "/p/$projectId/geo", params, search: {} }),
+      paths: [
+        "/p/$projectId/geo",
+        "/p/$projectId/ai-visibility",
+        "/p/$projectId/prompt-explorer",
+      ],
+      subs: [
+        {
+          label: "GEO score",
+          link: linkOptions({ to: "/p/$projectId/geo", params, search: {} }),
+        },
+        {
+          label: "Prompt tracking",
+          link: linkOptions({
+            to: "/p/$projectId/ai-visibility",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Prompt research",
+          link: linkOptions({
+            to: "/p/$projectId/ai-visibility/research",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Prompt explorer",
+          link: linkOptions({
+            to: "/p/$projectId/prompt-explorer",
+            params,
+            search: {},
+          }),
+        },
       ],
     },
     {
-      label: "My Site",
-      items: [
-        byPath("/p/$projectId/search-performance"),
-        byPath("/p/$projectId/rank-tracking"),
-        byPath("/p/$projectId/local-seo"),
-        byPath("/p/$projectId/saved"),
-        byPath("/p/$projectId/audit"),
+      key: "keywords",
+      label: "Keywords",
+      icon: Tag,
+      link: linkOptions({ to: "/p/$projectId/keywords", params, search: {} }),
+      paths: [
+        "/p/$projectId/keywords",
+        "/p/$projectId/questions",
+        "/p/$projectId/saved",
+        "/p/$projectId/rank-tracking",
+        "/p/$projectId/domain",
+        "/p/$projectId/backlinks",
+      ],
+      subs: [
+        {
+          label: "Ideas",
+          link: linkOptions({
+            to: "/p/$projectId/keywords",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Questions",
+          link: linkOptions({
+            to: "/p/$projectId/questions",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Saved keywords",
+          link: linkOptions({ to: "/p/$projectId/saved", params, search: {} }),
+        },
+        {
+          label: "Rank tracking",
+          link: linkOptions({
+            to: "/p/$projectId/rank-tracking",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Competitors",
+          link: linkOptions({
+            to: "/p/$projectId/domain",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Backlinks",
+          link: linkOptions({
+            to: "/p/$projectId/backlinks",
+            params,
+            search: {},
+          }),
+        },
       ],
     },
     {
-      label: "AI Tools",
-      items: [
-        byPath("/p/$projectId/reports"),
-        byPath("/p/$projectId/context"),
-        aiNavItem,
+      key: "weekly-reports",
+      label: "Weekly reports",
+      icon: FileText,
+      link: linkOptions({
+        to: "/p/$projectId/weekly-reports",
+        params,
+        search: {},
+      }),
+      paths: ["/p/$projectId/weekly-reports"],
+      subs: [],
+    },
+    {
+      key: "tools",
+      label: "More tools",
+      icon: Wrench,
+      link: linkOptions({ to: "/p/$projectId/audit", params, search: {} }),
+      paths: [
+        "/p/$projectId/audit",
+        "/p/$projectId/local-seo",
+        "/p/$projectId/reports",
+        "/p/$projectId/context",
+        "/ai",
+      ],
+      subs: [
+        {
+          label: "Site audit",
+          link: linkOptions({ to: "/p/$projectId/audit", params, search: {} }),
+        },
+        {
+          label: "Local SEO",
+          link: linkOptions({
+            to: "/p/$projectId/local-seo",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Shareable reports",
+          link: linkOptions({
+            to: "/p/$projectId/reports",
+            params,
+            search: {},
+          }),
+        },
+        {
+          label: "Context",
+          link: linkOptions({
+            to: "/p/$projectId/context",
+            params,
+            search: {},
+          }),
+        },
+        { label: "Agent setup", link: aiNavItem },
       ],
     },
   ];
+}
+
+/**
+ * The module the current page belongs to, from the matched route ids. The
+ * dashboard (the project index route) only owns the page when nothing deeper
+ * matched.
+ */
+export function findActiveModule(
+  modules: NavModule[],
+  routeIds: string[],
+): NavModule | null {
+  const deepest = routeIds.at(-1) ?? "";
+  return (
+    modules.find((module) =>
+      module.key === "dashboard"
+        ? deepest === "/_app/p/$projectId/"
+        : module.paths.some((path) =>
+            routeIds.some(
+              (id) => id === `/_app${path}` || id.startsWith(`/_app${path}/`),
+            ),
+          ),
+    ) ?? null
+  );
 }
 
 export const dataforseoHelpLinkOptions = linkOptions({

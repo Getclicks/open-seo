@@ -1,7 +1,6 @@
-import { Link, useLocation, useMatchRoute } from "@tanstack/react-router";
-import type { LinkOptions } from "@tanstack/react-router";
+import { Link, useLocation } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState, type ComponentType } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { cn } from "cn";
 import {
@@ -18,8 +17,8 @@ import { organizationContextQueryOptions } from "@/client/features/team/organiza
 import { switchOrganization } from "@/serverFunctions/organization";
 import { clearLastProjectId } from "@/client/lib/active-project";
 import {
-  connectNavGroup,
-  getProjectNavGroups,
+  connectNavModules,
+  getProjectNavModules,
 } from "@/client/navigation/items";
 import { ProjectSwitcher } from "@/client/features/projects/ProjectSwitcher";
 import {
@@ -41,7 +40,6 @@ import {
   SidebarFooter as UiSidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -58,66 +56,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/client/components/ui/dropdown-menu";
-
-const navButtonClass =
-  "relative text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground data-active:before:absolute data-active:before:inset-y-1 data-active:before:left-0 data-active:before:w-[3px] data-active:before:rounded-r-full data-active:before:bg-primary";
-
-function SidebarNavLink({
-  icon: Icon,
-  label,
-  linkProps,
-  placeholder = false,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  linkProps: LinkOptions;
-  /** Show the row without its link, while its project is still unknown. */
-  placeholder?: boolean;
-}) {
-  const { setOpenMobile } = useSidebar();
-  const matchRoute = useMatchRoute();
-  const isPromptHistory =
-    linkProps.to === "/p/$projectId/ai-visibility" &&
-    Boolean(
-      matchRoute({
-        to: "/p/$projectId/ai-visibility/prompts/$promptId",
-        fuzzy: true,
-      }),
-    );
-  const row = (isActive: boolean) => (
-    <SidebarMenuButton
-      render={<span />}
-      isActive={isActive}
-      aria-disabled={placeholder || undefined}
-      className={navButtonClass}
-    >
-      <Icon className="size-4" />
-      <span>{label}</span>
-    </SidebarMenuButton>
-  );
-  return (
-    <SidebarMenuItem>
-      {placeholder ? (
-        row(false)
-      ) : (
-        <Link
-          {...linkProps}
-          activeOptions={{
-            exact: false,
-            includeSearch: false,
-            ...linkProps.activeOptions,
-          }}
-          onClick={() => setOpenMobile(false)}
-          inactiveProps={
-            isPromptHistory ? { "aria-current": "page" } : undefined
-          }
-        >
-          {({ isActive }) => row(isActive || isPromptHistory)}
-        </Link>
-      )}
-    </SidebarMenuItem>
-  );
-}
+import {
+  ModuleNav,
+  NavSearch,
+  navButtonClass,
+  SidebarNavLink,
+} from "@/client/components/SidebarNav";
 
 export function Sidebar({
   projectId,
@@ -132,39 +76,36 @@ export function Sidebar({
 }) {
   // Until a project is known, show the project nav as rows without links, so
   // the sidebar has its full shape from the first paint instead of growing
-  // once projects load. The placeholder rows never render these links.
+  // once projects load.
   const navPlaceholder = projectId === null && projectPending;
-  const navGroups =
+  const modules =
     projectId !== null || navPlaceholder
-      ? getProjectNavGroups(projectId ?? "")
-      : [connectNavGroup];
+      ? getProjectNavModules(projectId ?? "")
+      : connectNavModules;
   const { pathname } = useLocation();
   const { setOpenMobile } = useSidebar();
+  const [filter, setFilter] = useState("");
   // SAM is hidden from navigation: the chat route is only reachable by URL,
   // and while it is open its chat list takes the nav's place.
   const onSamRoute = pathname.includes("/sam");
 
   return (
-    <UiSidebar variant="inset" collapsible="offcanvas" className="md:!p-0">
-      <SidebarHeader
-        className={cn("gap-0 px-3 pb-1", everyApp ? "pt-2" : "pt-3")}
-      >
+    <UiSidebar
+      variant="inset"
+      collapsible="offcanvas"
+      className="md:!top-3 md:!bottom-3 md:!left-3 md:!h-auto md:!p-0"
+    >
+      <SidebarHeader className={cn("gap-3 px-3.5", everyApp ? "pt-2" : "pt-4")}>
         {everyApp ? <EveryAppLink /> : null}
-        <Link
-          to="/"
-          onClick={() => setOpenMobile(false)}
-          className="px-1 pb-2 text-base font-semibold text-sidebar-foreground"
-        >
-          OpenSEO
-        </Link>
         <ProjectSwitcher
           activeProjectId={projectId}
           ready={ready}
           onCloseDrawer={() => setOpenMobile(false)}
         />
+        {onSamRoute ? null : <NavSearch value={filter} onChange={setFilter} />}
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1.5">
         {onSamRoute && projectId ? (
           ready ? (
             <SamSidebarPanel
@@ -181,29 +122,15 @@ export function Sidebar({
             aria-label="Main navigation"
             aria-busy={navPlaceholder || undefined}
           >
-            {navGroups.map((group) => (
-              <SidebarGroup key={group.label} className="py-1">
-                <SidebarGroupLabel className="h-7 uppercase tracking-wider text-sidebar-foreground/40">
-                  {group.label}
-                </SidebarGroupLabel>
-                <SidebarGroupContent>
-                  <SidebarMenu>
-                    {group.items.map((item) => {
-                      const { icon, label, ...linkProps } = item;
-                      return (
-                        <SidebarNavLink
-                          key={linkProps.to}
-                          icon={icon}
-                          label={label}
-                          linkProps={linkProps}
-                          placeholder={navPlaceholder}
-                        />
-                      );
-                    })}
-                  </SidebarMenu>
-                </SidebarGroupContent>
-              </SidebarGroup>
-            ))}
+            <SidebarGroup className="py-1">
+              <SidebarGroupContent>
+                <ModuleNav
+                  modules={modules}
+                  placeholder={navPlaceholder}
+                  filter={filter}
+                />
+              </SidebarGroupContent>
+            </SidebarGroup>
           </nav>
         )}
       </SidebarContent>
@@ -276,11 +203,11 @@ function AccountFooter({ ready }: { ready: boolean }) {
   }
 
   return (
-    <UiSidebarFooter className="gap-0 border-t border-sidebar-border pb-safe">
+    <UiSidebarFooter className="mx-1.5 gap-0 border-t border-sidebar-border px-1.5 pb-safe">
       <SidebarMenu>
         <SidebarNavLink
           icon={CircleHelp}
-          label="Help & Community"
+          label="Help & knowledge base"
           linkProps={{ to: "/support" }}
         />
         {everyApp ? (

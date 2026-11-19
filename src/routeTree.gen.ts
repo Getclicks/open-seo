@@ -54,6 +54,7 @@ import { Route as AppPProjectIdBacklinksRouteImport } from './routes/_app/p/$pro
 import { Route as AppPProjectIdBrandLookupRouteImport } from './routes/_app/p/$projectId/brand-lookup'
 import { Route as AppPProjectIdContextRouteImport } from './routes/_app/p/$projectId/context'
 import { Route as AppPProjectIdDomainRouteImport } from './routes/_app/p/$projectId/domain'
+import { Route as AppPProjectIdGeoRouteImport } from './routes/_app/p/$projectId/geo'
 import { Route as AppPProjectIdKeywordsRouteImport } from './routes/_app/p/$projectId/keywords'
 import { Route as AppPProjectIdLocalSeoRouteImport } from './routes/_app/p/$projectId/local-seo'
 import { Route as AppPProjectIdPromptExplorerRouteImport } from './routes/_app/p/$projectId/prompt-explorer'
@@ -61,8 +62,10 @@ import { Route as AppPProjectIdQuestionsRouteImport } from './routes/_app/p/$pro
 import { Route as AppPProjectIdRankTrackingRouteImport } from './routes/_app/p/$projectId/rank-tracking'
 import { Route as AppPProjectIdSamRouteImport } from './routes/_app/p/$projectId/sam'
 import { Route as AppPProjectIdSavedRouteImport } from './routes/_app/p/$projectId/saved'
+import { Route as AppPProjectIdSearchConsoleRouteImport } from './routes/_app/p/$projectId/search-console'
 import { Route as AppPProjectIdSearchPerformanceRouteImport } from './routes/_app/p/$projectId/search-performance'
 import { Route as AppPProjectIdSettingsRouteImport } from './routes/_app/p/$projectId/settings'
+import { Route as AppPProjectIdWeeklyReportsRouteImport } from './routes/_app/p/$projectId/weekly-reports'
 import { Route as ApiGa4OauthCallbackRouteImport } from './routes/api/ga4/oauth/callback'
 import { Route as ApiGscOauthCallbackRouteImport } from './routes/api/gsc/oauth/callback'
 import { Route as AppPProjectIdAiVisibilityIndexRouteImport } from './routes/_app/p/$projectId/ai-visibility/index'
@@ -78,6 +81,8 @@ import { Route as AppPProjectIdReportsTemplatesRouteImport } from './routes/_app
 import { Route as AppPProjectIdSettingsIndexRouteImport } from './routes/_app/p/$projectId/settings/index'
 import { Route as AppPProjectIdSettingsContextRouteImport } from './routes/_app/p/$projectId/settings/context'
 import { Route as AppPProjectIdSettingsIntegrationsRouteImport } from './routes/_app/p/$projectId/settings/integrations'
+import { Route as AppPProjectIdSettingsStoresRouteImport } from './routes/_app/p/$projectId/settings/stores'
+import { Route as AppPProjectIdSettingsWeeklyReportRouteImport } from './routes/_app/p/$projectId/settings/weekly-report'
 import { Route as ReportMapGrantZXYRouteImport } from './routes/report-map/$grant/$z/$x/$y'
 import { Route as AppPProjectIdAiVisibilityPromptsPromptIdRouteImport } from './routes/_app/p/$projectId/ai-visibility/prompts/$promptId'
 import { Route as AppPProjectIdAuditIssuesResultIdRouteImport } from './routes/_app/p/$projectId/audit/issues/$resultId'
@@ -311,6 +316,11 @@ const AppPProjectIdDomainRoute = AppPProjectIdDomainRouteImport.update({
   path: '/domain',
   getParentRoute: () => AppPProjectIdRouteRoute,
 } as any)
+const AppPProjectIdGeoRoute = AppPProjectIdGeoRouteImport.update({
+  id: '/geo',
+  path: '/geo',
+  getParentRoute: () => AppPProjectIdRouteRoute,
+} as any)
 const AppPProjectIdKeywordsRoute = AppPProjectIdKeywordsRouteImport.update({
   id: '/keywords',
   path: '/keywords',
@@ -348,6 +358,12 @@ const AppPProjectIdSavedRoute = AppPProjectIdSavedRouteImport.update({
   path: '/saved',
   getParentRoute: () => AppPProjectIdRouteRoute,
 } as any)
+const AppPProjectIdSearchConsoleRoute =
+  AppPProjectIdSearchConsoleRouteImport.update({
+    id: '/search-console',
+    path: '/search-console',
+    getParentRoute: () => AppPProjectIdRouteRoute,
+  } as any)
 const AppPProjectIdSearchPerformanceRoute =
   AppPProjectIdSearchPerformanceRouteImport.update({
     id: '/search-performance',
@@ -359,6 +375,12 @@ const AppPProjectIdSettingsRoute = AppPProjectIdSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => AppPProjectIdRouteRoute,
 } as any)
+const AppPProjectIdWeeklyReportsRoute =
+  AppPProjectIdWeeklyReportsRouteImport.update({
+    id: '/weekly-reports',
+    path: '/weekly-reports',
+    getParentRoute: () => AppPProjectIdRouteRoute,
+  } as any)
 const ApiGa4OauthCallbackRoute = ApiGa4OauthCallbackRouteImport.update({
   id: '/api/ga4/oauth/callback',
   path: '/api/ga4/oauth/callback',
@@ -446,6 +468,18 @@ const AppPProjectIdSettingsIntegrationsRoute =
     path: '/integrations',
     getParentRoute: () => AppPProjectIdSettingsRoute,
   } as any)
+const AppPProjectIdSettingsStoresRoute =
+  AppPProjectIdSettingsStoresRouteImport.update({
+    id: '/stores',
+    path: '/stores',
+    getParentRoute: () => AppPProjectIdSettingsRoute,
+  } as any)
+const AppPProjectIdSettingsWeeklyReportRoute =
+  AppPProjectIdSettingsWeeklyReportRouteImport.update({
+    id: '/weekly-report',
+    path: '/weekly-report',
+    getParentRoute: () => AppPProjectIdSettingsRoute,
+  } as any)
 const ReportMapGrantZXYRoute = ReportMapGrantZXYRouteImport.update({
   id: '/report-map/$grant/$z/$x/$y',
   path: '/report-map/$grant/$z/$x/$y',
@@ -512,6 +546,7 @@ export interface FileRoutesByFullPath {
   '/p/$projectId/brand-lookup': typeof AppPProjectIdBrandLookupRoute
   '/p/$projectId/context': typeof AppPProjectIdContextRoute
   '/p/$projectId/domain': typeof AppPProjectIdDomainRoute
+  '/p/$projectId/geo': typeof AppPProjectIdGeoRoute
   '/p/$projectId/keywords': typeof AppPProjectIdKeywordsRoute
   '/p/$projectId/local-seo': typeof AppPProjectIdLocalSeoRouteWithChildren
   '/p/$projectId/prompt-explorer': typeof AppPProjectIdPromptExplorerRoute
@@ -519,8 +554,10 @@ export interface FileRoutesByFullPath {
   '/p/$projectId/rank-tracking': typeof AppPProjectIdRankTrackingRouteWithChildren
   '/p/$projectId/sam': typeof AppPProjectIdSamRoute
   '/p/$projectId/saved': typeof AppPProjectIdSavedRoute
+  '/p/$projectId/search-console': typeof AppPProjectIdSearchConsoleRoute
   '/p/$projectId/search-performance': typeof AppPProjectIdSearchPerformanceRoute
   '/p/$projectId/settings': typeof AppPProjectIdSettingsRouteWithChildren
+  '/p/$projectId/weekly-reports': typeof AppPProjectIdWeeklyReportsRoute
   '/api/ga4/oauth/callback': typeof ApiGa4OauthCallbackRoute
   '/api/gsc/oauth/callback': typeof ApiGscOauthCallbackRoute
   '/p/$projectId/': typeof AppPProjectIdIndexRoute
@@ -531,6 +568,8 @@ export interface FileRoutesByFullPath {
   '/p/$projectId/reports/templates': typeof AppPProjectIdReportsTemplatesRoute
   '/p/$projectId/settings/context': typeof AppPProjectIdSettingsContextRoute
   '/p/$projectId/settings/integrations': typeof AppPProjectIdSettingsIntegrationsRoute
+  '/p/$projectId/settings/stores': typeof AppPProjectIdSettingsStoresRoute
+  '/p/$projectId/settings/weekly-report': typeof AppPProjectIdSettingsWeeklyReportRoute
   '/report-map/$grant/$z/$x/$y': typeof ReportMapGrantZXYRoute
   '/p/$projectId/ai-visibility/': typeof AppPProjectIdAiVisibilityIndexRoute
   '/p/$projectId/audit/': typeof AppPProjectIdAuditIndexRoute
@@ -581,12 +620,15 @@ export interface FileRoutesByTo {
   '/p/$projectId/brand-lookup': typeof AppPProjectIdBrandLookupRoute
   '/p/$projectId/context': typeof AppPProjectIdContextRoute
   '/p/$projectId/domain': typeof AppPProjectIdDomainRoute
+  '/p/$projectId/geo': typeof AppPProjectIdGeoRoute
   '/p/$projectId/keywords': typeof AppPProjectIdKeywordsRoute
   '/p/$projectId/prompt-explorer': typeof AppPProjectIdPromptExplorerRoute
   '/p/$projectId/questions': typeof AppPProjectIdQuestionsRoute
   '/p/$projectId/sam': typeof AppPProjectIdSamRoute
   '/p/$projectId/saved': typeof AppPProjectIdSavedRoute
+  '/p/$projectId/search-console': typeof AppPProjectIdSearchConsoleRoute
   '/p/$projectId/search-performance': typeof AppPProjectIdSearchPerformanceRoute
+  '/p/$projectId/weekly-reports': typeof AppPProjectIdWeeklyReportsRoute
   '/api/ga4/oauth/callback': typeof ApiGa4OauthCallbackRoute
   '/api/gsc/oauth/callback': typeof ApiGscOauthCallbackRoute
   '/p/$projectId': typeof AppPProjectIdIndexRoute
@@ -597,6 +639,8 @@ export interface FileRoutesByTo {
   '/p/$projectId/reports/templates': typeof AppPProjectIdReportsTemplatesRoute
   '/p/$projectId/settings/context': typeof AppPProjectIdSettingsContextRoute
   '/p/$projectId/settings/integrations': typeof AppPProjectIdSettingsIntegrationsRoute
+  '/p/$projectId/settings/stores': typeof AppPProjectIdSettingsStoresRoute
+  '/p/$projectId/settings/weekly-report': typeof AppPProjectIdSettingsWeeklyReportRoute
   '/report-map/$grant/$z/$x/$y': typeof ReportMapGrantZXYRoute
   '/p/$projectId/ai-visibility': typeof AppPProjectIdAiVisibilityIndexRoute
   '/p/$projectId/audit': typeof AppPProjectIdAuditIndexRoute
@@ -654,6 +698,7 @@ export interface FileRoutesById {
   '/_app/p/$projectId/brand-lookup': typeof AppPProjectIdBrandLookupRoute
   '/_app/p/$projectId/context': typeof AppPProjectIdContextRoute
   '/_app/p/$projectId/domain': typeof AppPProjectIdDomainRoute
+  '/_app/p/$projectId/geo': typeof AppPProjectIdGeoRoute
   '/_app/p/$projectId/keywords': typeof AppPProjectIdKeywordsRoute
   '/_app/p/$projectId/local-seo': typeof AppPProjectIdLocalSeoRouteWithChildren
   '/_app/p/$projectId/prompt-explorer': typeof AppPProjectIdPromptExplorerRoute
@@ -661,8 +706,10 @@ export interface FileRoutesById {
   '/_app/p/$projectId/rank-tracking': typeof AppPProjectIdRankTrackingRouteWithChildren
   '/_app/p/$projectId/sam': typeof AppPProjectIdSamRoute
   '/_app/p/$projectId/saved': typeof AppPProjectIdSavedRoute
+  '/_app/p/$projectId/search-console': typeof AppPProjectIdSearchConsoleRoute
   '/_app/p/$projectId/search-performance': typeof AppPProjectIdSearchPerformanceRoute
   '/_app/p/$projectId/settings': typeof AppPProjectIdSettingsRouteWithChildren
+  '/_app/p/$projectId/weekly-reports': typeof AppPProjectIdWeeklyReportsRoute
   '/api/ga4/oauth/callback': typeof ApiGa4OauthCallbackRoute
   '/api/gsc/oauth/callback': typeof ApiGscOauthCallbackRoute
   '/_app/p/$projectId/': typeof AppPProjectIdIndexRoute
@@ -673,6 +720,8 @@ export interface FileRoutesById {
   '/_app/p/$projectId/reports/templates': typeof AppPProjectIdReportsTemplatesRoute
   '/_app/p/$projectId/settings/context': typeof AppPProjectIdSettingsContextRoute
   '/_app/p/$projectId/settings/integrations': typeof AppPProjectIdSettingsIntegrationsRoute
+  '/_app/p/$projectId/settings/stores': typeof AppPProjectIdSettingsStoresRoute
+  '/_app/p/$projectId/settings/weekly-report': typeof AppPProjectIdSettingsWeeklyReportRoute
   '/report-map/$grant/$z/$x/$y': typeof ReportMapGrantZXYRoute
   '/_app/p/$projectId/ai-visibility/': typeof AppPProjectIdAiVisibilityIndexRoute
   '/_app/p/$projectId/audit/': typeof AppPProjectIdAuditIndexRoute
@@ -728,6 +777,7 @@ export interface FileRouteTypes {
     | '/p/$projectId/brand-lookup'
     | '/p/$projectId/context'
     | '/p/$projectId/domain'
+    | '/p/$projectId/geo'
     | '/p/$projectId/keywords'
     | '/p/$projectId/local-seo'
     | '/p/$projectId/prompt-explorer'
@@ -735,8 +785,10 @@ export interface FileRouteTypes {
     | '/p/$projectId/rank-tracking'
     | '/p/$projectId/sam'
     | '/p/$projectId/saved'
+    | '/p/$projectId/search-console'
     | '/p/$projectId/search-performance'
     | '/p/$projectId/settings'
+    | '/p/$projectId/weekly-reports'
     | '/api/ga4/oauth/callback'
     | '/api/gsc/oauth/callback'
     | '/p/$projectId/'
@@ -747,6 +799,8 @@ export interface FileRouteTypes {
     | '/p/$projectId/reports/templates'
     | '/p/$projectId/settings/context'
     | '/p/$projectId/settings/integrations'
+    | '/p/$projectId/settings/stores'
+    | '/p/$projectId/settings/weekly-report'
     | '/report-map/$grant/$z/$x/$y'
     | '/p/$projectId/ai-visibility/'
     | '/p/$projectId/audit/'
@@ -797,12 +851,15 @@ export interface FileRouteTypes {
     | '/p/$projectId/brand-lookup'
     | '/p/$projectId/context'
     | '/p/$projectId/domain'
+    | '/p/$projectId/geo'
     | '/p/$projectId/keywords'
     | '/p/$projectId/prompt-explorer'
     | '/p/$projectId/questions'
     | '/p/$projectId/sam'
     | '/p/$projectId/saved'
+    | '/p/$projectId/search-console'
     | '/p/$projectId/search-performance'
+    | '/p/$projectId/weekly-reports'
     | '/api/ga4/oauth/callback'
     | '/api/gsc/oauth/callback'
     | '/p/$projectId'
@@ -813,6 +870,8 @@ export interface FileRouteTypes {
     | '/p/$projectId/reports/templates'
     | '/p/$projectId/settings/context'
     | '/p/$projectId/settings/integrations'
+    | '/p/$projectId/settings/stores'
+    | '/p/$projectId/settings/weekly-report'
     | '/report-map/$grant/$z/$x/$y'
     | '/p/$projectId/ai-visibility'
     | '/p/$projectId/audit'
@@ -869,6 +928,7 @@ export interface FileRouteTypes {
     | '/_app/p/$projectId/brand-lookup'
     | '/_app/p/$projectId/context'
     | '/_app/p/$projectId/domain'
+    | '/_app/p/$projectId/geo'
     | '/_app/p/$projectId/keywords'
     | '/_app/p/$projectId/local-seo'
     | '/_app/p/$projectId/prompt-explorer'
@@ -876,8 +936,10 @@ export interface FileRouteTypes {
     | '/_app/p/$projectId/rank-tracking'
     | '/_app/p/$projectId/sam'
     | '/_app/p/$projectId/saved'
+    | '/_app/p/$projectId/search-console'
     | '/_app/p/$projectId/search-performance'
     | '/_app/p/$projectId/settings'
+    | '/_app/p/$projectId/weekly-reports'
     | '/api/ga4/oauth/callback'
     | '/api/gsc/oauth/callback'
     | '/_app/p/$projectId/'
@@ -888,6 +950,8 @@ export interface FileRouteTypes {
     | '/_app/p/$projectId/reports/templates'
     | '/_app/p/$projectId/settings/context'
     | '/_app/p/$projectId/settings/integrations'
+    | '/_app/p/$projectId/settings/stores'
+    | '/_app/p/$projectId/settings/weekly-report'
     | '/report-map/$grant/$z/$x/$y'
     | '/_app/p/$projectId/ai-visibility/'
     | '/_app/p/$projectId/audit/'
@@ -1245,6 +1309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPProjectIdDomainRouteImport
       parentRoute: typeof AppPProjectIdRouteRoute
     }
+    '/_app/p/$projectId/geo': {
+      id: '/_app/p/$projectId/geo'
+      path: '/geo'
+      fullPath: '/p/$projectId/geo'
+      preLoaderRoute: typeof AppPProjectIdGeoRouteImport
+      parentRoute: typeof AppPProjectIdRouteRoute
+    }
     '/_app/p/$projectId/keywords': {
       id: '/_app/p/$projectId/keywords'
       path: '/keywords'
@@ -1294,6 +1365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPProjectIdSavedRouteImport
       parentRoute: typeof AppPProjectIdRouteRoute
     }
+    '/_app/p/$projectId/search-console': {
+      id: '/_app/p/$projectId/search-console'
+      path: '/search-console'
+      fullPath: '/p/$projectId/search-console'
+      preLoaderRoute: typeof AppPProjectIdSearchConsoleRouteImport
+      parentRoute: typeof AppPProjectIdRouteRoute
+    }
     '/_app/p/$projectId/search-performance': {
       id: '/_app/p/$projectId/search-performance'
       path: '/search-performance'
@@ -1306,6 +1384,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/p/$projectId/settings'
       preLoaderRoute: typeof AppPProjectIdSettingsRouteImport
+      parentRoute: typeof AppPProjectIdRouteRoute
+    }
+    '/_app/p/$projectId/weekly-reports': {
+      id: '/_app/p/$projectId/weekly-reports'
+      path: '/weekly-reports'
+      fullPath: '/p/$projectId/weekly-reports'
+      preLoaderRoute: typeof AppPProjectIdWeeklyReportsRouteImport
       parentRoute: typeof AppPProjectIdRouteRoute
     }
     '/api/ga4/oauth/callback': {
@@ -1413,6 +1498,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPProjectIdSettingsIntegrationsRouteImport
       parentRoute: typeof AppPProjectIdSettingsRoute
     }
+    '/_app/p/$projectId/settings/stores': {
+      id: '/_app/p/$projectId/settings/stores'
+      path: '/stores'
+      fullPath: '/p/$projectId/settings/stores'
+      preLoaderRoute: typeof AppPProjectIdSettingsStoresRouteImport
+      parentRoute: typeof AppPProjectIdSettingsRoute
+    }
+    '/_app/p/$projectId/settings/weekly-report': {
+      id: '/_app/p/$projectId/settings/weekly-report'
+      path: '/weekly-report'
+      fullPath: '/p/$projectId/settings/weekly-report'
+      preLoaderRoute: typeof AppPProjectIdSettingsWeeklyReportRouteImport
+      parentRoute: typeof AppPProjectIdSettingsRoute
+    }
     '/report-map/$grant/$z/$x/$y': {
       id: '/report-map/$grant/$z/$x/$y'
       path: '/report-map/$grant/$z/$x/$y'
@@ -1513,6 +1612,8 @@ const AppPProjectIdRankTrackingRouteWithChildren =
 interface AppPProjectIdSettingsRouteChildren {
   AppPProjectIdSettingsContextRoute: typeof AppPProjectIdSettingsContextRoute
   AppPProjectIdSettingsIntegrationsRoute: typeof AppPProjectIdSettingsIntegrationsRoute
+  AppPProjectIdSettingsStoresRoute: typeof AppPProjectIdSettingsStoresRoute
+  AppPProjectIdSettingsWeeklyReportRoute: typeof AppPProjectIdSettingsWeeklyReportRoute
   AppPProjectIdSettingsIndexRoute: typeof AppPProjectIdSettingsIndexRoute
 }
 
@@ -1520,6 +1621,9 @@ const AppPProjectIdSettingsRouteChildren: AppPProjectIdSettingsRouteChildren = {
   AppPProjectIdSettingsContextRoute: AppPProjectIdSettingsContextRoute,
   AppPProjectIdSettingsIntegrationsRoute:
     AppPProjectIdSettingsIntegrationsRoute,
+  AppPProjectIdSettingsStoresRoute: AppPProjectIdSettingsStoresRoute,
+  AppPProjectIdSettingsWeeklyReportRoute:
+    AppPProjectIdSettingsWeeklyReportRoute,
   AppPProjectIdSettingsIndexRoute: AppPProjectIdSettingsIndexRoute,
 }
 
@@ -1534,6 +1638,7 @@ interface AppPProjectIdRouteRouteChildren {
   AppPProjectIdBrandLookupRoute: typeof AppPProjectIdBrandLookupRoute
   AppPProjectIdContextRoute: typeof AppPProjectIdContextRoute
   AppPProjectIdDomainRoute: typeof AppPProjectIdDomainRoute
+  AppPProjectIdGeoRoute: typeof AppPProjectIdGeoRoute
   AppPProjectIdKeywordsRoute: typeof AppPProjectIdKeywordsRoute
   AppPProjectIdLocalSeoRoute: typeof AppPProjectIdLocalSeoRouteWithChildren
   AppPProjectIdPromptExplorerRoute: typeof AppPProjectIdPromptExplorerRoute
@@ -1541,8 +1646,10 @@ interface AppPProjectIdRouteRouteChildren {
   AppPProjectIdRankTrackingRoute: typeof AppPProjectIdRankTrackingRouteWithChildren
   AppPProjectIdSamRoute: typeof AppPProjectIdSamRoute
   AppPProjectIdSavedRoute: typeof AppPProjectIdSavedRoute
+  AppPProjectIdSearchConsoleRoute: typeof AppPProjectIdSearchConsoleRoute
   AppPProjectIdSearchPerformanceRoute: typeof AppPProjectIdSearchPerformanceRoute
   AppPProjectIdSettingsRoute: typeof AppPProjectIdSettingsRouteWithChildren
+  AppPProjectIdWeeklyReportsRoute: typeof AppPProjectIdWeeklyReportsRoute
   AppPProjectIdIndexRoute: typeof AppPProjectIdIndexRoute
   AppPProjectIdReportsReportIdRoute: typeof AppPProjectIdReportsReportIdRoute
   AppPProjectIdReportsTemplatesRoute: typeof AppPProjectIdReportsTemplatesRoute
@@ -1557,6 +1664,7 @@ const AppPProjectIdRouteRouteChildren: AppPProjectIdRouteRouteChildren = {
   AppPProjectIdBrandLookupRoute: AppPProjectIdBrandLookupRoute,
   AppPProjectIdContextRoute: AppPProjectIdContextRoute,
   AppPProjectIdDomainRoute: AppPProjectIdDomainRoute,
+  AppPProjectIdGeoRoute: AppPProjectIdGeoRoute,
   AppPProjectIdKeywordsRoute: AppPProjectIdKeywordsRoute,
   AppPProjectIdLocalSeoRoute: AppPProjectIdLocalSeoRouteWithChildren,
   AppPProjectIdPromptExplorerRoute: AppPProjectIdPromptExplorerRoute,
@@ -1564,8 +1672,10 @@ const AppPProjectIdRouteRouteChildren: AppPProjectIdRouteRouteChildren = {
   AppPProjectIdRankTrackingRoute: AppPProjectIdRankTrackingRouteWithChildren,
   AppPProjectIdSamRoute: AppPProjectIdSamRoute,
   AppPProjectIdSavedRoute: AppPProjectIdSavedRoute,
+  AppPProjectIdSearchConsoleRoute: AppPProjectIdSearchConsoleRoute,
   AppPProjectIdSearchPerformanceRoute: AppPProjectIdSearchPerformanceRoute,
   AppPProjectIdSettingsRoute: AppPProjectIdSettingsRouteWithChildren,
+  AppPProjectIdWeeklyReportsRoute: AppPProjectIdWeeklyReportsRoute,
   AppPProjectIdIndexRoute: AppPProjectIdIndexRoute,
   AppPProjectIdReportsReportIdRoute: AppPProjectIdReportsReportIdRoute,
   AppPProjectIdReportsTemplatesRoute: AppPProjectIdReportsTemplatesRoute,
