@@ -165,6 +165,7 @@ export function SearchConsolePage({
             <label className="flex items-center gap-2">
               <span className="sr-only">Country</span>
               <select
+                data-slot="native-select"
                 value={search.country ?? ""}
                 onChange={(event) =>
                   setSearch({ country: event.target.value || undefined })
@@ -191,6 +192,7 @@ export function SearchConsolePage({
             <label className="flex min-h-10 min-w-[240px] items-center rounded-lg border border-input bg-card px-3">
               <span className="sr-only">Filter the table</span>
               <input
+                data-slot="native-input"
                 type="search"
                 value={filter}
                 onChange={(event) => {

@@ -109,7 +109,7 @@ export function WeeklyReportsPage({
           </p>
         </Panel>
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
           <section
             aria-label="Reports"
             className="flex flex-col gap-1 rounded-xl border border-border bg-secondary p-1.5"

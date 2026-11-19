@@ -208,6 +208,7 @@ export function NotesPanel({ projectId }: { projectId: string }) {
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
               Date
               <input
+                data-slot="native-input"
                 type="date"
                 value={noteDate}
                 onChange={(event) => setNoteDate(event.target.value)}
@@ -217,6 +218,7 @@ export function NotesPanel({ projectId }: { projectId: string }) {
             <label className="flex flex-col gap-1 text-xs text-muted-foreground">
               What did you change?
               <textarea
+                data-slot="native-textarea"
                 value={body}
                 onChange={(event) => setBody(event.target.value)}
                 maxLength={500}

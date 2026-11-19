@@ -81,7 +81,7 @@ export function WeeklyReportSettings({ projectId }: { projectId: string }) {
         save.mutate(draft);
       }}
     >
-      <div className="grid items-start gap-5 md:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-5 md:grid-cols-2">
         <Panel
           title="Weekly report schedule"
           id="schedule-h"
@@ -107,6 +107,7 @@ export function WeeklyReportSettings({ projectId }: { projectId: string }) {
               <label className="flex min-w-[140px] flex-1 flex-col gap-1.5 text-[13px] text-muted-foreground">
                 Day
                 <select
+                  data-slot="native-select"
                   value={draft.weekday}
                   onChange={(event) =>
                     set({ weekday: Number(event.target.value) })
@@ -123,6 +124,7 @@ export function WeeklyReportSettings({ projectId }: { projectId: string }) {
               <label className="flex min-w-[110px] flex-1 flex-col gap-1.5 text-[13px] text-muted-foreground">
                 Time
                 <input
+                  data-slot="native-input"
                   type="time"
                   value={draft.time}
                   onChange={(event) => set({ time: event.target.value })}
@@ -178,6 +180,7 @@ export function WeeklyReportSettings({ projectId }: { projectId: string }) {
             <label className="mt-2 flex flex-col gap-1.5 text-[13px] text-muted-foreground">
               Recipients
               <input
+                data-slot="native-input"
                 type="text"
                 value={recipients}
                 onChange={(event) => setRecipients(event.target.value)}

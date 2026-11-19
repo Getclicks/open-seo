@@ -76,6 +76,7 @@ export function GeoPage({ projectId }: { projectId: string }) {
               <label className="flex items-center">
                 <span className="sr-only">Previous audits</span>
                 <select
+                  data-slot="native-select"
                   value={auditId ?? ""}
                   onChange={(event) =>
                     setAuditId(event.target.value || undefined)
@@ -137,8 +138,8 @@ function GeoAuditBody({
   const delta = previous ? audit.score - previous.score : null;
   return (
     <>
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <div className="flex min-w-0 flex-col gap-5">
           <Panel title="Total score" id="geo-score">
             <div className="flex flex-col gap-3">
               <div className="flex items-baseline gap-2">
@@ -219,7 +220,7 @@ function GeoAuditBody({
             </div>
           </Panel>
         </div>
-        <div className="flex flex-col gap-5">
+        <div className="flex min-w-0 flex-col gap-5">
           <Panel title="AI crawler access" id="geo-bots">
             <div className="flex flex-col">
               {audit.bots.map((bot) => (

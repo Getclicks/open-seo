@@ -76,7 +76,7 @@ export function Panel({
     <section
       aria-labelledby={title && id ? id : undefined}
       className={cn(
-        "flex flex-col overflow-hidden rounded-xl border border-border bg-card",
+        "flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card",
         className,
       )}
     >
@@ -197,6 +197,7 @@ export function ChangePill({
   if (change === null || !Number.isFinite(change)) {
     return <span className="text-muted-foreground">–</span>;
   }
+  if (Math.abs(change) < 0.005) return <Pill tone="neutral">0%</Pill>;
   const good = invert ? change <= 0 : change >= 0;
   return (
     <Pill tone={good ? "up" : "down"}>

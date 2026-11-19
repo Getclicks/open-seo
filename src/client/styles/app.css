@@ -361,3 +361,11 @@ html[data-theme="openseo-dark"] {
   --trend-tooltip-border: oklch(40% 0.01 255 / 0.65);
   --trend-tooltip-shadow: oklch(0% 0 0 / 0.35);
 }
+
+/* Native controls on the SEO App screens set their own size on desktop;
+   below md they keep 16px so mobile Safari doesn't zoom on focus. */
+@media (max-width: 767px) {
+  [data-slot^="native-"] {
+    font-size: 16px;
+  }
+}

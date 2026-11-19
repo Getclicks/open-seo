@@ -15,10 +15,7 @@ import type { SearchConsoleTab } from "@/shared/search-console";
 import type { SearchConsoleOverview } from "@/server/features/search-console/SearchConsoleService";
 import type { ComparedRow } from "@/server/features/search-console/searchConsoleData";
 
-function noteFor(
-  tab: SearchConsoleTab,
-  row: ComparedRow,
-): string | null {
+function noteFor(tab: SearchConsoleTab, row: ComparedRow): string | null {
   if (tab === "decliners" && row.previousPosition !== null) {
     return `Position ${formatPosition(row.previousPosition)} → ${row.position ? formatPosition(row.position) : "gone"}`;
   }

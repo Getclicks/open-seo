@@ -179,6 +179,8 @@ function SubLink({
   return (
     <Link
       {...sub.link}
+      // Exact, so a parent page isn't marked current on its child pages.
+      activeOptions={{ exact: true }}
       onClick={onNavigate}
       aria-current={isActive ? "page" : undefined}
       className={cn(
@@ -221,6 +223,7 @@ export function NavSearch({
       <SearchIcon className="size-4 text-muted-foreground" aria-hidden />
       <span className="sr-only">Search the app</span>
       <input
+        data-slot="native-input"
         ref={inputRef}
         type="search"
         value={value}

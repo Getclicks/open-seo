@@ -136,6 +136,7 @@ export function ReportArticle({
               <label>
                 <span className="sr-only">Status of {action.title}</span>
                 <select
+                  data-slot="native-select"
                   value={action.status}
                   onChange={(event) =>
                     setStatus.mutate({

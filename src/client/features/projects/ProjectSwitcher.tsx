@@ -3,7 +3,7 @@ import { projectsQueryOptions } from "@/client/features/projects/projectQueries"
 import { Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { findLast } from "remeda";
-import { ChevronsUpDown, FolderCog, Plus, Settings } from "lucide-react";
+import { FolderCog, Plus, Settings } from "lucide-react";
 import { setLastProjectId } from "@/client/lib/active-project";
 import { CreateProjectModal } from "@/client/features/projects/CreateProjectModal";
 import {
@@ -145,10 +145,6 @@ export function ProjectSwitcher({
               </span>
             ) : null}
           </span>
-          <ChevronsUpDown
-            className="size-3.5 shrink-0 text-muted-foreground"
-            aria-hidden
-          />
         </ComboboxTrigger>
         <ComboboxContent className="w-(--anchor-width)">
           {projects.length >= SEARCH_THRESHOLD ? (
