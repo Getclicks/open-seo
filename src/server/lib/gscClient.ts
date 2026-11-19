@@ -2,6 +2,11 @@ import { getGoogleAccessToken } from "@/server/features/google/googleOAuth";
 import { getGoogleAccessMode } from "@/server/features/google/googleAccess";
 import { getGatewayGoogleFetch } from "@/server/features/google/gatewayGoogle";
 import { GSC_OAUTH_PROVIDER_ID } from "@/shared/gsc";
+import {
+  getServiceAccountAccessToken,
+  getServiceAccountEmail,
+  SERVICE_ACCOUNT_ID,
+} from "@/server/features/google/serviceAccount";
 import { GscApiError, GscTokenError } from "./gscErrors";
 
 export { GscApiError, GscTokenError } from "./gscErrors";
@@ -89,12 +94,17 @@ export function createGscClient(opts: {
   // One mint per client: a client lives for a single service call, and
   // concurrent requests (inspectUrls fans out) must not race the refresh.
   let tokenPromise: Promise<string> | undefined;
+  const viaServiceAccount = opts.gscAccountId === SERVICE_ACCOUNT_ID;
   function getToken(): Promise<string> {
-    tokenPromise ??= getGoogleAccessToken({
-      providerId: GSC_OAUTH_PROVIDER_ID,
-      userId: opts.userId,
-      accountId: opts.gscAccountId,
-    }).catch((error: unknown) => {
+    tokenPromise ??= (
+      viaServiceAccount
+        ? getServiceAccountAccessToken()
+        : getGoogleAccessToken({
+            providerId: GSC_OAUTH_PROVIDER_ID,
+            userId: opts.userId,
+            accountId: opts.gscAccountId,
+          })
+    ).catch((error: unknown) => {
       tokenPromise = undefined;
       throw new GscTokenError(
         "Could not mint a Search Console access token (grant revoked or expired).",
@@ -113,7 +123,7 @@ export function createGscClient(opts: {
     fetch: typeof fetch;
     headers: Record<string, string>;
   }> {
-    if ((await getGoogleAccessMode()) === "gateway") {
+    if (!viaServiceAccount && (await getGoogleAccessMode()) === "gateway") {
       const gatewayFetch = await getGatewayGoogleFetch(opts.userId);
       if (!gatewayFetch) {
         throw new GscTokenError(
@@ -155,6 +165,8 @@ export function createGscClient(opts: {
 
   return {
     async getUserInfoEmail(): Promise<string | null> {
+      // The service account has no userinfo scope; its address is its name.
+      if (viaServiceAccount) return getServiceAccountEmail();
       const data = await request<{ email?: unknown }>(GOOGLE_USERINFO_URL);
       return typeof data.email === "string" ? data.email : null;
     },
