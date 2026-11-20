@@ -21,6 +21,8 @@ import {
 import { getOptionalEnvValue } from "@/server/lib/runtime-env";
 import { AppError, describeError } from "@/server/lib/errors";
 import { nextWeeklyRun } from "@/shared/weekly-schedule";
+import { ProjectMarketService } from "@/server/features/markets/ProjectMarketService";
+import { gscCountryForLocation, marketLabel } from "@/shared/markets";
 
 const REPORT_DAYS = 7;
 // Each report reads Search Console, inspects URLs and fetches pages, so a
@@ -168,7 +170,12 @@ async function generate(input: {
       : null,
   ]);
 
+  const markets = await ProjectMarketService.list(project);
   const built = buildWeeklyReport({
+    markets: markets.map((market) => ({
+      label: marketLabel(market).replace(/ \(.+\)$/, ""),
+      country: gscCountryForLocation(market.locationCode),
+    })),
     gsc: gsc.overview,
     indexIssues: gsc.indexIssues,
     geo,

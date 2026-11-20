@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
+import { useProjectMarket } from "@/client/features/projects/useProjectMarket";
 import { useQuery } from "@tanstack/react-query";
 import { revalidateLogic, useStore } from "@tanstack/react-form";
 import { Info } from "lucide-react";
@@ -100,9 +101,10 @@ export function RankTrackingConfigModal({
     ...projectsQueryOptions(),
     enabled: !existingConfig,
   });
+  // The top bar's market, else the project's primary market.
+  const projectMarket = useProjectMarket(projectId);
   const initialMarket =
-    existingConfig ??
-    projectsQuery.data?.find((project) => project.id === projectId);
+    existingConfig ?? (projectsQuery.data ? projectMarket : undefined);
 
   if (!initialMarket) {
     return (

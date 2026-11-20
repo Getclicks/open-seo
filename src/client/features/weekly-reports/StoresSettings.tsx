@@ -7,11 +7,13 @@ import { Skeleton } from "@/client/components/ui/skeleton";
 import { CreateProjectModal } from "@/client/features/projects/CreateProjectModal";
 import { Panel, Pill } from "@/client/features/seo-app/ui";
 import { getStores } from "@/serverFunctions/weeklyReports";
-import { LOCATIONS } from "@/shared/keyword-locations";
+import { MarketsEditor } from "@/client/features/markets/MarketsEditor";
+import { marketLabel } from "@/shared/markets";
 
 export function StoresSettings({ projectId }: { projectId: string }) {
   const [adding, setAdding] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [editing, setEditing] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ["stores"],
     queryFn: () => getStores(),
@@ -45,10 +47,8 @@ export function StoresSettings({ projectId }: { projectId: string }) {
               <div className="flex min-w-[200px] flex-1 flex-col gap-0.5">
                 <span className="text-[15px] font-medium">{store.name}</span>
                 <span className="text-[13px] text-muted-foreground">
-                  {store.domain ?? "No domain yet"}
-                  {LOCATIONS[store.locationCode]
-                    ? ` · ${LOCATIONS[store.locationCode]}`
-                    : ""}
+                  {store.domain ?? "No domain yet"} ·{" "}
+                  {store.markets.map(marketLabel).join(" · ")}
                 </span>
               </div>
               {store.gscProperty ? (
@@ -56,6 +56,15 @@ export function StoresSettings({ projectId }: { projectId: string }) {
               ) : (
                 <Pill tone="warn">Search Console not connected</Pill>
               )}
+              <Button
+                variant="outline"
+                aria-expanded={editing === store.id}
+                onClick={() =>
+                  setEditing(editing === store.id ? null : store.id)
+                }
+              >
+                {editing === store.id ? "Done" : "Markets"}
+              </Button>
               <Button
                 variant="outline"
                 nativeButton={false}
@@ -68,6 +77,11 @@ export function StoresSettings({ projectId }: { projectId: string }) {
               >
                 Edit
               </Button>
+              {editing === store.id ? (
+                <div className="w-full pt-1">
+                  <MarketsEditor projectId={store.id} markets={store.markets} />
+                </div>
+              ) : null}
             </div>
           ))}
         </div>

@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { usePreferredKeywordLocation } from "@/client/features/keywords/hooks/usePreferredKeywordLocation";
 import { useProjectMarket } from "@/client/features/projects/useProjectMarket";
+import { useActiveMarket } from "@/client/features/markets/activeMarket";
 import { saveKeywords } from "@/serverFunctions/keywords";
 import type { SaveKeywordsInput } from "@/types/schemas/keywords";
 import type { KeywordResearchRow } from "@/types/keywords";
@@ -12,15 +13,29 @@ export function useResolvedKeywordLocation(input: {
   locationCode?: number;
 }) {
   const projectMarket = useProjectMarket(input.projectId);
+  const { active } = useActiveMarket(input.projectId);
   const {
     preferredLocationCode,
     selectedLocationCode,
     setPreferredLocationCode,
   } = usePreferredKeywordLocation(input.projectId, projectMarket?.locationCode);
-  const locationCode = input.locationCode ?? selectedLocationCode;
-  const displayedLocationCode = input.locationCode ?? preferredLocationCode;
+  // A country picked in the form on this visit beats the top bar's market,
+  // which beats the remembered preference.
+  const [pickedLocationCode, setPickedLocationCode] = useState<number>();
+  const marketLocationCode = pickedLocationCode ?? active?.locationCode;
+  const locationCode =
+    input.locationCode ?? marketLocationCode ?? selectedLocationCode;
+  const displayedLocationCode =
+    input.locationCode ?? marketLocationCode ?? preferredLocationCode;
 
-  return { locationCode, displayedLocationCode, setPreferredLocationCode };
+  return {
+    locationCode,
+    displayedLocationCode,
+    setPreferredLocationCode: (code: number) => {
+      setPickedLocationCode(code);
+      setPreferredLocationCode(code);
+    },
+  };
 }
 
 export function useKeywordUiState(initialShowFilters: boolean) {

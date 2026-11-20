@@ -1,4 +1,10 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { projects } from "./app.schema";
 
@@ -153,5 +159,28 @@ export const projectNotes = sqliteTable(
   },
   (table) => [
     index("project_notes_project_date_idx").on(table.projectId, table.noteDate),
+  ],
+);
+
+// The extra markets (country + language) a store sells in. The project's own
+// locationCode/languageCode stays the primary market and is never stored
+// here; a store with no rows sells in its primary market only.
+export const projectMarkets = sqliteTable(
+  "project_markets",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    locationCode: integer("location_code").notNull(),
+    languageCode: text("language_code").notNull(),
+    position: integer("position").notNull(),
+  },
+  (table) => [
+    uniqueIndex("project_markets_project_market_idx").on(
+      table.projectId,
+      table.locationCode,
+      table.languageCode,
+    ),
   ],
 );

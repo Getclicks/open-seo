@@ -14,7 +14,7 @@ import {
 import { PageFrame, PageTitle, Panel } from "@/client/features/seo-app/ui";
 import { geoAuditQuery } from "@/client/features/geo/GeoPage";
 import { runGeoAudit } from "@/serverFunctions/geo";
-import { gscCountryName } from "@/shared/search-console";
+import { useMarketCountry } from "@/client/features/markets/activeMarket";
 import { TrendChart } from "@/client/features/seo-app/TrendChart";
 import {
   OrganicPanel,
@@ -39,7 +39,7 @@ function readDismissed() {
 export function SeoDashboardPage({ projectId }: { projectId: string }) {
   const project = useProject(projectId);
   const queryClient = useQueryClient();
-  const [country, setCountry] = useState<string | undefined>();
+  const { country, label: marketName } = useMarketCountry(projectId);
   const [showHelp, setShowHelp] = useState(() => !readDismissed());
   const overview = useQuery(
     searchConsoleOverviewQuery({ projectId, days: 28, country }),
@@ -71,25 +71,12 @@ export function SeoDashboardPage({ projectId }: { projectId: string }) {
         domain={project?.domain ?? project?.name}
         subtitle={
           <span className="flex flex-wrap items-center gap-2 text-sm">
-            <span>in</span>
-            <label>
-              <span className="sr-only">Country</span>
-              <select
-                data-slot="native-select"
-                value={country ?? ""}
-                onChange={(event) =>
-                  setCountry(event.target.value || undefined)
-                }
-                className="min-h-9 rounded-lg border border-input bg-card px-2.5 text-sm font-medium text-foreground"
-              >
-                <option value="">All countries</option>
-                {countries.slice(0, 12).map((row) => (
-                  <option key={row.key} value={row.key}>
-                    {gscCountryName(row.key)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <span>
+              in{" "}
+              <strong className="font-medium text-foreground">
+                {marketName}
+              </strong>
+            </span>
             <span>· last 28 days</span>
           </span>
         }
@@ -164,12 +151,7 @@ export function SeoDashboardPage({ projectId }: { projectId: string }) {
             <ConnectSearchConsole projectId={projectId} />
           ) : (
             <>
-              <OrganicPanel
-                gsc={gsc}
-                countryLabel={
-                  country ? gscCountryName(country) : "all countries"
-                }
-              />
+              <OrganicPanel gsc={gsc} countryLabel={marketName} />
               <Panel title="Trend" id="trend-h">
                 <div className="mb-3 flex flex-wrap gap-4 text-[13px] text-muted-foreground">
                   <span className="flex items-center gap-1.5">

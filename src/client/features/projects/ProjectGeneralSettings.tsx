@@ -15,6 +15,8 @@ import {
   aiVisibilityKey,
 } from "@/client/features/ai-visibility/shared";
 import { ProjectMarketFields } from "@/client/features/projects/ProjectMarketFields";
+import { MarketsEditor } from "@/client/features/markets/MarketsEditor";
+import { useStoreMarkets } from "@/client/features/markets/activeMarket";
 import {
   clearLastProjectId,
   getLastProjectId,
@@ -42,11 +44,29 @@ export function ProjectGeneralSettings({ projectId }: { projectId: string }) {
           <div className="space-y-8">
             {/* key resets the form's local state when switching between projects */}
             <GeneralSection key={project.id} project={project} />
+            <MarketsSection projectId={project.id} />
             <DangerSection project={project} canArchive={projects.length > 1} />
           </div>
         );
       }}
     </QueryState>
+  );
+}
+
+function MarketsSection({ projectId }: { projectId: string }) {
+  const markets = useStoreMarkets(projectId);
+  return (
+    <section className="space-y-3">
+      <SectionHeader title="Markets" />
+      <p className="m-0 text-sm text-muted-foreground">
+        Every country and language the store sells in. The primary market is the
+        one above; the others appear in the market switcher at the top of the
+        app.
+      </p>
+      {markets.data ? (
+        <MarketsEditor projectId={projectId} markets={markets.data} />
+      ) : null}
+    </section>
   );
 }
 
@@ -87,6 +107,10 @@ function GeneralSection({ project }: { project: ProjectSummary }) {
       });
       await queryClient.invalidateQueries({
         queryKey: aiVisibilityKey(project.id),
+      });
+      // The primary market is the first of the store's markets.
+      await queryClient.invalidateQueries({
+        queryKey: ["project-markets", project.id],
       });
       setKeepBrand(false);
       toast.success("Project updated");

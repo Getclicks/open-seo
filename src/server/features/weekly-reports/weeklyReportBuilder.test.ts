@@ -109,3 +109,38 @@ it("puts high-impact actions first and keeps at most five", () => {
   expect(report.actions[0]?.title).toContain('"lost"');
   expect(report.actions[1]?.title).toContain('"big"');
 });
+
+it("adds clicks per market country for a store in several countries", () => {
+  const report = buildWeeklyReport({
+    markets: [
+      { label: "NL", country: "nld" },
+      { label: "BE", country: "bel" },
+      // Belgium in French shares Belgium's Search Console figure.
+      { label: "BE", country: "bel" },
+      { label: "FR", country: "fra" },
+    ],
+    gsc: overview({
+      countries: [
+        compared("nld", 900, { clicks: 120, previousClicks: 100 }),
+        compared("bel", 300, { clicks: 45, previousClicks: 50 }),
+      ],
+    }),
+    indexIssues: null,
+    geo: null,
+    previousGeoScore: null,
+  });
+  expect(report.summary).toContain(
+    "Clicks per market: NL 120 (+20%), BE 45 (−10%), FR 0.",
+  );
+});
+
+it("leaves the market line out for a single-country store", () => {
+  const report = buildWeeklyReport({
+    markets: [{ label: "NL", country: "nld" }],
+    gsc: overview({ countries: [compared("nld", 900)] }),
+    indexIssues: null,
+    geo: null,
+    previousGeoScore: null,
+  });
+  expect(report.summary).not.toContain("per market");
+});

@@ -1,5 +1,12 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, pgTable, text } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  pgTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { projects } from "./app.schema";
 
 // Text timestamps, as in pg/app.schema.ts.
@@ -138,5 +145,28 @@ export const projectNotes = pgTable(
   },
   (table) => [
     index("project_notes_project_date_idx").on(table.projectId, table.noteDate),
+  ],
+);
+
+// The extra markets (country + language) a store sells in. The project's own
+// locationCode/languageCode stays the primary market and is never stored
+// here; a store with no rows sells in its primary market only.
+export const projectMarkets = pgTable(
+  "project_markets",
+  {
+    id: text("id").primaryKey(),
+    projectId: text("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    locationCode: integer("location_code").notNull(),
+    languageCode: text("language_code").notNull(),
+    position: integer("position").notNull(),
+  },
+  (table) => [
+    uniqueIndex("project_markets_project_market_idx").on(
+      table.projectId,
+      table.locationCode,
+      table.languageCode,
+    ),
   ],
 );

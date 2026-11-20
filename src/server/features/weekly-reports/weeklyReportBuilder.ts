@@ -17,7 +17,12 @@ export type ReportAction = {
 
 type IndexIssue = { url: string; kind: string; detail: string };
 
+/** A store market as the report names it, with its Search Console country. */
+type ReportMarket = { label: string; country: string | null };
+
 type WeeklyReportInput = {
+  /** The store's markets; only a store in two or more countries gets the line. */
+  markets?: ReportMarket[];
   gsc: SearchConsoleOverview | null;
   indexIssues: IndexIssue[] | null;
   geo: GeoAuditResult | null;
@@ -207,11 +212,39 @@ function geoActions(geo: GeoAuditResult): ReportAction[] {
   ).flatMap((item) => GEO_ACTION[item.key]?.(geo) ?? []);
 }
 
+/**
+ * "Per market: NL 512 (+8%), BE 140 (−3%)." for a store in several markets.
+ * Markets that share a country (Belgium in Dutch and French) share one
+ * figure: Search Console counts clicks per country, not per language.
+ */
+function marketSummary(gsc: SearchConsoleOverview, markets: ReportMarket[]) {
+  const countries = new Map<string, string>();
+  for (const market of markets) {
+    if (market.country && !countries.has(market.country)) {
+      countries.set(market.country, market.label);
+    }
+  }
+  if (countries.size < 2) return null;
+  const parts = [...countries].map(([country, label]) => {
+    const row = gsc.countries.find((entry) => entry.key === country);
+    if (!row) return `${label} 0`;
+    const change =
+      row.previousClicks > 0
+        ? ` (${row.clicks >= row.previousClicks ? "+" : "−"}${pct(
+            (row.clicks - row.previousClicks) / row.previousClicks,
+          )})`
+        : "";
+    return `${label} ${number(row.clicks)}${change}`;
+  });
+  return `Clicks per market: ${parts.join(", ")}.`;
+}
+
 export function buildWeeklyReport(input: WeeklyReportInput) {
   const summary = [
     input.gsc
       ? gscSummary(input.gsc)
       : "Search Console isn't connected, so this report has no Google data.",
+    input.gsc && input.markets ? marketSummary(input.gsc, input.markets) : null,
     input.geo ? geoSummary(input.geo, input.previousGeoScore) : null,
   ]
     .filter(Boolean)

@@ -149,6 +149,7 @@ export const {
   weeklyReports,
   weeklyReportActions,
   projectNotes,
+  projectMarkets,
   localRankScans,
   localRankPoints,
   localRankBusinesses,

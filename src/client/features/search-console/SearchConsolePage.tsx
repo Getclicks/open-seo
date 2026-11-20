@@ -6,6 +6,7 @@ import { Button } from "@/client/components/ui/button";
 import { Skeleton } from "@/client/components/ui/skeleton";
 import { ErrorState } from "@/client/components/ErrorState";
 import { getStandardErrorMessage } from "@/client/lib/error-messages";
+import { useMarketCountry } from "@/client/features/markets/activeMarket";
 import {
   ConnectSearchConsole,
   searchConsoleOverviewQuery,
@@ -18,7 +19,6 @@ import {
 } from "@/client/features/seo-app/ui";
 import { getSearchConsoleIndexing } from "@/serverFunctions/searchConsole";
 import {
-  gscCountryName,
   SEARCH_CONSOLE_TAB_LABELS,
   SEARCH_CONSOLE_TABS,
   type SearchConsoleTab,
@@ -32,7 +32,6 @@ import {
 
 type Search = {
   tab?: SearchConsoleTab;
-  country?: string;
   q?: string;
 };
 
@@ -103,13 +102,14 @@ export function SearchConsolePage({
   const navigate = useNavigate({ from: "/p/$projectId/search-console" });
   const project = useProject(projectId);
   const tab = search.tab ?? "queries";
+  const { country, label: marketName } = useMarketCountry(projectId);
   const [filter, setFilter] = useState(search.q ?? "");
   const [shown, setShown] = useState(PAGE_SIZE);
   const overview = useQuery(
     searchConsoleOverviewQuery({
       projectId,
       days: 28,
-      country: search.country,
+      country,
     }),
   );
   const indexing = useQuery({
@@ -162,24 +162,13 @@ export function SearchConsolePage({
         domain={project?.domain}
         subtitle={
           <span className="flex flex-wrap items-center gap-2">
-            <label className="flex items-center gap-2">
-              <span className="sr-only">Country</span>
-              <select
-                data-slot="native-select"
-                value={search.country ?? ""}
-                onChange={(event) =>
-                  setSearch({ country: event.target.value || undefined })
-                }
-                className="min-h-9 rounded-lg border border-input bg-card px-2.5 text-sm text-foreground"
-              >
-                <option value="">All countries</option>
-                {(data?.countries ?? []).slice(0, 15).map((country) => (
-                  <option key={country.key} value={country.key}>
-                    {gscCountryName(country.key)}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <span className="text-sm">
+              In{" "}
+              <strong className="font-medium text-foreground">
+                {marketName}
+              </strong>{" "}
+              ·
+            </span>
             <span className="text-sm">
               {data
                 ? `${data.periods.current.startDate} – ${data.periods.current.endDate}, vs the 28 days before`

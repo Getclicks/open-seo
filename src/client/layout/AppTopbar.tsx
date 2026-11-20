@@ -2,6 +2,7 @@ import { Link, useMatches } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarTrigger } from "@/client/components/ui/sidebar";
 import { projectsQueryOptions } from "@/client/features/projects/projectQueries";
+import { MarketSwitcher } from "@/client/features/markets/MarketSwitcher";
 import {
   findActiveModule,
   getProjectNavModules,
@@ -70,6 +71,7 @@ export function AppTopbar({ projectId }: { projectId: string | null }) {
           </>
         ) : null}
       </nav>
+      {projectId ? <MarketSwitcher projectId={projectId} /> : null}
     </div>
   );
 }

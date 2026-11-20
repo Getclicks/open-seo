@@ -6,7 +6,6 @@ import { SEARCH_CONSOLE_TABS } from "@/shared/search-console";
 
 const searchSchema = z.object({
   tab: z.enum(SEARCH_CONSOLE_TABS).optional().catch(undefined),
-  country: z.string().length(3).optional().catch(undefined),
   q: z.string().max(200).optional().catch(undefined),
 });
 
